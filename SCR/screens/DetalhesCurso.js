@@ -1,0 +1,261 @@
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
+
+export default function DetalhesCursoScreen({ route, navigation }) {
+  const { cursoId, cursoNome } = route.params;
+  const [curso, setCurso] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const db = getFirestore();
+  const auth = getAuth();
+
+  useEffect(() => {
+    carregarCurso();
+  }, []);
+
+  const carregarCurso = async () => {
+    try {
+      const cursoRef = doc(db, 'cursos', cursoId);
+      const cursoDoc = await getDoc(cursoRef);
+      
+      if (cursoDoc.exists()) {
+        setCurso({ id: cursoDoc.id, ...cursoDoc.data() });
+      }
+    } catch (error) {
+      console.error('Erro ao carregar curso:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>Carregando...</Text>
+      </View>
+    );
+  }
+
+  return (
+    <ScrollView style={styles.container}>
+      <View style={styles.header}>
+        <Image 
+          source={{ uri: curso?.imagem || 'https://via.placeholder.com/300' }} 
+          style={styles.headerImage} 
+        />
+        <View style={styles.headerOverlay}>
+          <Text style={styles.headerTitle}>{cursoNome}</Text>
+          <Text style={styles.headerSubtitle}>{curso?.nivel || 'Nível não especificado'}</Text>
+        </View>
+      </View>
+
+      <View style={styles.content}>
+        <View style={styles.infoSection}>
+          <Text style={styles.sectionTitle}>Sobre o Curso</Text>
+          <Text style={styles.description}>{curso?.descricao || 'Descrição não disponível'}</Text>
+          
+          <View style={styles.statsContainer}>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{curso?.duracao || '0'}</Text>
+              <Text style={styles.statLabel}>Horas</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{curso?.modulos?.length || '0'}</Text>
+              <Text style={styles.statLabel}>Módulos</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{curso?.alunos || '0'}</Text>
+              <Text style={styles.statLabel}>Alunos</Text>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.modulosSection}>
+          <Text style={styles.sectionTitle}>Módulos do Curso</Text>
+          {curso?.modulos?.map((modulo, index) => (
+            <TouchableOpacity 
+              key={index}
+              style={styles.moduloCard}
+              onPress={() => navigation.navigate('Modulo', { 
+                cursoId: cursoId,
+                moduloId: index,
+                moduloNome: modulo.titulo
+              })}
+            >
+              <View style={styles.moduloInfo}>
+                <Text style={styles.moduloNumero}>Módulo {index + 1}</Text>
+                <Text style={styles.moduloTitulo}>{modulo.titulo}</Text>
+                <Text style={styles.moduloDescricao}>{modulo.descricao}</Text>
+              </View>
+              <Text style={styles.moduloIcon}>›</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+
+      <TouchableOpacity 
+        style={styles.startButton}
+        onPress={() => navigation.navigate('Modulo', { 
+          cursoId: cursoId,
+          moduloId: 0,
+          moduloNome: curso?.modulos?.[0]?.titulo
+        })}
+      >
+        <Text style={styles.startButtonText}>Começar Curso</Text>
+      </TouchableOpacity>
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#666',
+  },
+  header: {
+    height: 200,
+    position: 'relative',
+  },
+  headerImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  headerOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    padding: 20,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 5,
+  },
+  headerSubtitle: {
+    fontSize: 16,
+    color: '#fff',
+    opacity: 0.8,
+  },
+  content: {
+    padding: 20,
+  },
+  infoSection: {
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    padding: 20,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 15,
+  },
+  description: {
+    fontSize: 16,
+    color: '#666',
+    lineHeight: 24,
+    marginBottom: 20,
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+    paddingTop: 20,
+  },
+  statItem: {
+    alignItems: 'center',
+  },
+  statValue: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#4a6bff',
+  },
+  statLabel: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 5,
+  },
+  modulosSection: {
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    padding: 20,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  moduloCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f8f9ff',
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  moduloInfo: {
+    flex: 1,
+  },
+  moduloNumero: {
+    fontSize: 14,
+    color: '#4a6bff',
+    marginBottom: 5,
+  },
+  moduloTitulo: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 5,
+  },
+  moduloDescricao: {
+    fontSize: 14,
+    color: '#666',
+  },
+  moduloIcon: {
+    fontSize: 24,
+    color: '#ccc',
+    marginLeft: 10,
+  },
+  startButton: {
+    backgroundColor: '#4a6bff',
+    borderRadius: 10,
+    padding: 15,
+    margin: 20,
+    alignItems: 'center',
+  },
+  startButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+}); 
