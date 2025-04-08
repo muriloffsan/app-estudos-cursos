@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image, Alert } from 'react-native';
 import { getFirestore, doc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
+import { getCursoById, getUserProgress, updateUserProgress } from '../../firebase/firestore';
 
 export default function ModuloScreen({ route, navigation }) {
   const { cursoId, moduloId, moduloNome } = route.params;
@@ -19,35 +20,19 @@ export default function ModuloScreen({ route, navigation }) {
 
   const carregarModulo = async () => {
     try {
-      const cursoRef = doc(db, 'cursos', cursoId);
-      const cursoDoc = await getDoc(cursoRef);
-      
-      if (cursoDoc.exists()) {
-        const cursoData = cursoDoc.data();
-        const moduloData = cursoData.modulos[moduloId];
+      const cursoData = await getCursoById(cursoId);
+      if (cursoData && cursoData.modulos && cursoData.modulos[moduloId]) {
+        setModulo(cursoData.modulos[moduloId]);
         
-        if (moduloData) {
-          setModulo(moduloData);
-          
-          // Carregar progresso do usuário
-          if (userId) {
-            const userProgressRef = doc(db, 'usuarios', userId, 'progresso', cursoId);
-            const userProgressDoc = await getDoc(userProgressRef);
-            
-            if (userProgressDoc.exists()) {
-              const progressoData = userProgressDoc.data();
-              const licoesConcluidas = progressoData.licoesConcluidas || [];
-              const licoesModulo = moduloData.licoes || [];
-              
-              const licoesConcluidasModulo = licoesModulo.filter(licao => 
-                licoesConcluidas.includes(licao.id)
-              ).length;
-              
-              const progressoCalculado = (licoesConcluidasModulo / licoesModulo.length) * 100;
-              setProgresso(Math.round(progressoCalculado));
-            }
-          }
-        }
+        // Carregar progresso do usuário
+        const progressoData = await getUserProgress(userId, cursoId);
+        const licoesConcluidas = progressoData.licoesConcluidas || [];
+        const totalLicoes = cursoData.modulos[moduloId].licoes.length;
+        const licoesConcluidasModulo = licoesConcluidas.filter(id => 
+          cursoData.modulos[moduloId].licoes.find(l => l.id === id)
+        ).length;
+        
+        setProgresso((licoesConcluidasModulo / totalLicoes) * 100);
       }
     } catch (error) {
       console.error('Erro ao carregar módulo:', error);
@@ -58,44 +43,17 @@ export default function ModuloScreen({ route, navigation }) {
   };
 
   const toggleLicaoConcluida = async (licaoId) => {
-    if (!userId) {
-      Alert.alert('Erro', 'Você precisa estar logado para marcar lições como concluídas.');
-      return;
-    }
-
     try {
-      const userProgressRef = doc(db, 'usuarios', userId, 'progresso', cursoId);
-      const userProgressDoc = await getDoc(userProgressRef);
-      
-      let licoesConcluidas = [];
-      if (userProgressDoc.exists()) {
-        licoesConcluidas = userProgressDoc.data().licoesConcluidas || [];
-      }
-      
-      const licaoIndex = licoesConcluidas.indexOf(licaoId);
-      if (licaoIndex === -1) {
-        // Adicionar lição concluída
-        await updateDoc(userProgressRef, {
-          licoesConcluidas: arrayUnion(licaoId),
-          ultimaAtualizacao: new Date()
-        }, { merge: true });
-      } else {
-        // Remover lição concluída
-        licoesConcluidas.splice(licaoIndex, 1);
-        await updateDoc(userProgressRef, {
-          licoesConcluidas,
-          ultimaAtualizacao: new Date()
-        });
-      }
+      const licoesConcluidas = await updateUserProgress(userId, cursoId, licaoId);
       
       // Recalcular progresso
-      const licoesModulo = modulo.licoes || [];
-      const licoesConcluidasModulo = licoesModulo.filter(licao => 
-        licoesConcluidas.includes(licao.id)
+      const totalLicoes = modulo.licoes.length;
+      const licoesConcluidasModulo = licoesConcluidas.filter(id => 
+        modulo.licoes.find(l => l.id === id)
       ).length;
       
-      const novoProgresso = (licoesConcluidasModulo / licoesModulo.length) * 100;
-      setProgresso(Math.round(novoProgresso));
+      const novoProgresso = (licoesConcluidasModulo / totalLicoes) * 100;
+      setProgresso(novoProgresso);
       
       // Verificar medalhas
       verificarMedalhas(novoProgresso);
@@ -156,16 +114,6 @@ export default function ModuloScreen({ route, navigation }) {
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.backButtonText}>‹</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>{moduloNome}</Text>
-      </View>
-
       <View style={styles.progressoContainer}>
         <View style={styles.progressoInfo}>
           <Text style={styles.progressoText}>Progresso</Text>
@@ -221,27 +169,6 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: 16,
     color: '#666',
-  },
-  header: {
-    backgroundColor: '#4a6bff',
-    padding: 20,
-    paddingTop: 50,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  backButton: {
-    marginRight: 15,
-  },
-  backButtonText: {
-    fontSize: 30,
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
-    flex: 1,
   },
   progressoContainer: {
     backgroundColor: '#fff',

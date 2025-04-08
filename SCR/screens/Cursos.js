@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 import { getFirestore, collection, getDocs } from 'firebase/firestore';
 import { app } from '../../firebase';
+import { getAuth } from 'firebase/auth';
+import { getCursos, getUserProgress } from '../../firebase/firestore';
 
 export default function CursosScreen({ navigation }) {
   const [cursos, setCursos] = useState([]);
@@ -18,16 +20,25 @@ export default function CursosScreen({ navigation }) {
   const [refreshing, setRefreshing] = useState(false);
   
   const db = getFirestore(app);
+  const auth = getAuth();
+  const userId = auth.currentUser?.uid;
 
   const fetchCursos = async () => {
     try {
-      const cursosCollection = collection(db, 'cursos');
-      const cursosSnapshot = await getDocs(cursosCollection);
-      const cursosList = cursosSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setCursos(cursosList);
+      const cursosData = await getCursos();
+      
+      // Carregar progresso para cada curso
+      const cursosComProgresso = await Promise.all(
+        cursosData.map(async (curso) => {
+          const progresso = await getUserProgress(userId, curso.id);
+          return {
+            ...curso,
+            progresso: progresso.progresso || 0
+          };
+        })
+      );
+      
+      setCursos(cursosComProgresso);
     } catch (error) {
       console.error('Erro ao buscar cursos:', error);
     } finally {

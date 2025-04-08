@@ -14,6 +14,7 @@ import {
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { initializeApp } from 'firebase/app';
 import { firebaseConfig } from '../../firebase';
+import { createInitialUserProfile } from '../../firebase/firestore';
 
 // Inicializa o Firebase
 const app = initializeApp(firebaseConfig);
@@ -37,12 +38,15 @@ export default function LoginScreen({ navigation }) {
         // Login
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         console.log('Usuário logado:', userCredential.user.email);
-        // Navegar para a tela principal após o login
         navigation.replace('Home');
       } else {
         // Cadastro
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         console.log('Usuário criado:', userCredential.user.email);
+        
+        // Criar perfil inicial no Firestore
+        await createInitialUserProfile(userCredential.user);
+        
         Alert.alert('Sucesso', 'Conta criada com sucesso!');
         setIsLogin(true);
       }

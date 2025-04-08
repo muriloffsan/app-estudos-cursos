@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image } from 'react-native';
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
+import { getCursoById, getUserProgress } from '../../firebase/firestore';
 
 export default function DetalhesCursoScreen({ route, navigation }) {
   const { cursoId, cursoNome } = route.params;
   const [curso, setCurso] = useState(null);
   const [loading, setLoading] = useState(true);
-  const db = getFirestore();
   const auth = getAuth();
+  const userId = auth.currentUser?.uid;
 
   useEffect(() => {
     carregarCurso();
@@ -16,11 +16,14 @@ export default function DetalhesCursoScreen({ route, navigation }) {
 
   const carregarCurso = async () => {
     try {
-      const cursoRef = doc(db, 'cursos', cursoId);
-      const cursoDoc = await getDoc(cursoRef);
-      
-      if (cursoDoc.exists()) {
-        setCurso({ id: cursoDoc.id, ...cursoDoc.data() });
+      const cursoData = await getCursoById(cursoId);
+      if (cursoData) {
+        const progresso = await getUserProgress(userId, cursoId);
+        setCurso({
+          ...cursoData,
+          progresso: progresso.progresso || 0,
+          licoesConcluidas: progresso.licoesConcluidas || []
+        });
       }
     } catch (error) {
       console.error('Erro ao carregar curso:', error);
@@ -39,14 +42,15 @@ export default function DetalhesCursoScreen({ route, navigation }) {
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.header}>
+      <View style={styles.cursoHeader}>
         <Image 
-          source={{ uri: curso?.imagem || 'https://via.placeholder.com/300' }} 
-          style={styles.headerImage} 
+          source={{ uri: curso?.imagem || 'https://via.placeholder.com/150' }} 
+          style={styles.cursoImage} 
         />
-        <View style={styles.headerOverlay}>
-          <Text style={styles.headerTitle}>{cursoNome}</Text>
-          <Text style={styles.headerSubtitle}>{curso?.nivel || 'Nível não especificado'}</Text>
+        <View style={styles.cursoInfo}>
+          <Text style={styles.cursoNome}>{curso?.nome}</Text>
+          <Text style={styles.cursoCategoria}>{curso?.categoria}</Text>
+          <Text style={styles.cursoDescricao}>{curso?.descricao}</Text>
         </View>
       </View>
 
@@ -122,16 +126,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
   },
-  header: {
+  cursoHeader: {
     height: 200,
     position: 'relative',
   },
-  headerImage: {
+  cursoImage: {
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
   },
-  headerOverlay: {
+  cursoInfo: {
     position: 'absolute',
     bottom: 0,
     left: 0,
@@ -139,16 +143,20 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
     padding: 20,
   },
-  headerTitle: {
+  cursoNome: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#fff',
     marginBottom: 5,
   },
-  headerSubtitle: {
+  cursoCategoria: {
     fontSize: 16,
     color: '#fff',
     opacity: 0.8,
+  },
+  cursoDescricao: {
+    fontSize: 16,
+    color: '#fff',
   },
   content: {
     padding: 20,
