@@ -9,7 +9,8 @@ import {
   KeyboardAvoidingView, 
   Platform,
   Alert,
-  ActivityIndicator
+  ActivityIndicator,
+  ImageBackground
 } from 'react-native';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { initializeApp } from 'firebase/app';
@@ -35,24 +36,18 @@ export default function LoginScreen({ navigation }) {
     setIsLoading(true);
     try {
       if (isLogin) {
-        // Login
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         console.log('Usuário logado:', userCredential.user.email);
         navigation.replace('Home');
       } else {
-        // Cadastro
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         console.log('Usuário criado:', userCredential.user.email);
-        
-        // Criar perfil inicial no Firestore
         await createInitialUserProfile(userCredential.user);
-        
         Alert.alert('Sucesso', 'Conta criada com sucesso!');
         setIsLogin(true);
       }
     } catch (error) {
       let errorMessage = 'Ocorreu um erro. Tente novamente.';
-      
       if (error.code === 'auth/invalid-email') {
         errorMessage = 'Email inválido.';
       } else if (error.code === 'auth/user-disabled') {
@@ -66,7 +61,6 @@ export default function LoginScreen({ navigation }) {
       } else if (error.code === 'auth/weak-password') {
         errorMessage = 'A senha deve ter pelo menos 6 caracteres.';
       }
-      
       Alert.alert('Erro', errorMessage);
     } finally {
       setIsLoading(false);
@@ -78,62 +72,68 @@ export default function LoginScreen({ navigation }) {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <View style={styles.logoContainer}>
-        <Image
-          source={require('../assets/icon.png')}
-          style={styles.logo}
-          resizeMode="contain"
-        />
-        <Text style={styles.title}>Estudos e Cursos</Text>
-      </View>
+      <ImageBackground
+        source={require('../assets/fundoLogin.png')} // Imagem de fundo
+        style={styles.background}
+        resizeMode="cover"
+      >
+        <View style={styles.logoContainer}>
+          <Image
+            source={require('../assets/logo_estudo.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+          <Text style={styles.title}>Estudos e Cursos</Text>
+        </View>
 
-      <View style={styles.formContainer}>
-        <Text style={styles.formTitle}>
-          {isLogin ? 'Login' : 'Criar Conta'}
-        </Text>
-        
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-        
-        <TextInput
-          style={styles.input}
-          placeholder="Senha"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
-        
-        <TouchableOpacity 
-          style={styles.button}
-          onPress={handleAuth}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.buttonText}>
-              {isLogin ? 'Entrar' : 'Cadastrar'}
-            </Text>
-          )}
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.switchButton}
-          onPress={() => setIsLogin(!isLogin)}
-        >
-          <Text style={styles.switchButtonText}>
-            {isLogin 
-              ? 'Não tem uma conta? Cadastre-se' 
-              : 'Já tem uma conta? Faça login'}
+        <View style={styles.formContainer}>
+          <Text style={styles.formTitle}>
+            {isLogin ? 'Login' : 'Criar Conta'}
           </Text>
-        </TouchableOpacity>
-      </View>
+
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+
+          <TextInput
+            style={styles.input}
+            placeholder="Senha"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
+
+          <TouchableOpacity 
+            style={styles.button}
+            onPress={handleAuth}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>
+                {isLogin ? 'Entrar' : 'Cadastrar'}
+              </Text>
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.switchButton}
+            onPress={() => setIsLogin(!isLogin)}
+          >
+            <Text style={styles.switchButtonText}>
+              {isLogin 
+                ? 'Não tem uma conta? Cadastre-se' 
+                : 'Já tem uma conta? Faça login'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </ImageBackground>
     </KeyboardAvoidingView>
   );
 }
@@ -141,7 +141,12 @@ export default function LoginScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+  },
+  background: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
   },
   logoContainer: {
     alignItems: 'center',
@@ -149,17 +154,20 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   logo: {
-    width: 120,
-    height: 120,
+    width: 370,
+    height: 370,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#fff',
     marginTop: 10,
+    textShadowColor: 'rgba(0, 0, 0, 0.6)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 4,
   },
   formContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: 'white',
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingHorizontal: 20,

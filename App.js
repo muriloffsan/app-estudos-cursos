@@ -63,6 +63,7 @@ export default function App() {
       >
         {user ? (
           <>
+            <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
             <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
             <Stack.Screen name="Cursos" component={CursosScreen} options={{ title: 'Cursos' }} />
             <Stack.Screen name="Perfil" component={PerfilScreen} options={{ title: 'Meu Perfil' }} />

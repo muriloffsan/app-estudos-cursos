@@ -64,6 +64,9 @@ export default function HomeScreen({ navigation }) {
               source={{ uri: 'https://via.placeholder.com/150' }} 
               style={styles.cursoImage} 
             />
+            <View style={[styles.menuIcon, { backgroundColor: '#1abc9c', marginTop: 10 }]}>
+              <Text style={styles.menuIconText}>💻</Text>
+            </View>
             <Text style={styles.cursoNome}>Introdução à Programação</Text>
             <Text style={styles.cursoNivel}>Iniciante</Text>
           </TouchableOpacity>
@@ -79,6 +82,9 @@ export default function HomeScreen({ navigation }) {
               source={{ uri: 'https://via.placeholder.com/150' }} 
               style={styles.cursoImage} 
             />
+            <View style={[styles.menuIcon, { backgroundColor: '#f39c12', marginTop: 10 }]}>
+              <Text style={styles.menuIconText}>🌐</Text>
+            </View>
             <Text style={styles.cursoNome}>Desenvolvimento Web</Text>
             <Text style={styles.cursoNivel}>Intermediário</Text>
           </TouchableOpacity>
@@ -94,6 +100,9 @@ export default function HomeScreen({ navigation }) {
               source={{ uri: 'https://via.placeholder.com/150' }} 
               style={styles.cursoImage} 
             />
+            <View style={[styles.menuIcon, { backgroundColor: '#e67e22', marginTop: 10 }]}>
+              <Text style={styles.menuIconText}>🎨</Text>
+            </View>
             <Text style={styles.cursoNome}>Design de Interfaces</Text>
             <Text style={styles.cursoNivel}>Avançado</Text>
           </TouchableOpacity>
@@ -111,9 +120,9 @@ export default function HomeScreen({ navigation }) {
         >
           <View style={styles.continueInfo}>
             <Text style={styles.continueTitle}>Introdução à Programação</Text>
-            <Text style={styles.continueProgress}>Progresso: 60%</Text>
+            <Text style={styles.continueProgress}>Progresso: 0%</Text>
             <View style={styles.progressoContainer}>
-              <View style={[styles.progressoBar, { width: '60%' }]} />
+              <View style={[styles.progressoBar, { width: '0%' }]} />
             </View>
           </View>
           <Text style={styles.continueIcon}>›</Text>
@@ -165,10 +174,7 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
     elevation: 5,
@@ -194,10 +200,7 @@ const styles = StyleSheet.create({
     padding: 15,
     width: '48%',
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
     elevation: 3,
@@ -246,13 +249,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
     elevation: 3,
+    alignItems: 'center',
   },
   cursoImage: {
     width: '100%',
@@ -263,14 +264,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     color: '#333',
-    padding: 10,
-    paddingBottom: 5,
+    paddingHorizontal: 10,
+    textAlign: 'center',
+    marginTop: 5,
   },
   cursoNivel: {
     fontSize: 12,
     color: '#666',
     paddingHorizontal: 10,
     paddingBottom: 10,
+    textAlign: 'center',
   },
   continueCard: {
     flexDirection: 'row',
@@ -318,4 +321,4 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#999',
   },
-}); 
+});
