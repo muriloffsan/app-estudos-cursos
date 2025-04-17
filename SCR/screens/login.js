@@ -8,30 +8,28 @@ import {
   Image,
   KeyboardAvoidingView,
   Platform,
-  Alert,
   ActivityIndicator,
   ImageBackground,
-  ScrollView // Adicionado para melhor rolagem em telas menores
+  ScrollView,
+  Alert
 } from 'react-native';
-// Importa apenas o 'auth' e a função do firestore
-import { auth } from '../../firebase'; // Importa o auth inicializado
-import { createInitialUserProfile } from '../../firebase/firestore'; // Importa a função
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 
-// Não precisa mais inicializar o Firebase aqui
-// const app = initializeApp(firebaseConfig);
-// const auth = getAuth(app);
+import { auth } from '../../firebase';
+import { createInitialUserProfile } from '../../firebase/firestore';
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword
+} from 'firebase/auth';
 
 export default function LoginScreen({ navigation }) {
-  const [name, setName] = useState(''); // Estado para o nome
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isLogin, setIsLogin] = useState(true); // true = Tela de Login, false = Tela de Cadastro
+  const [isLogin, setIsLogin] = useState(true);
 
   const handleAuth = async () => {
-    // Validação básica
-    if (!email || !password || (!isLogin && !name)) { // Adiciona validação de nome no cadastro
+    if (!email || !password || (!isLogin && !name)) {
       Alert.alert('Atenção', 'Por favor, preencha todos os campos.');
       return;
     }
@@ -39,35 +37,31 @@ export default function LoginScreen({ navigation }) {
     setIsLoading(true);
     try {
       if (isLogin) {
-        // --- Login ---
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         console.log('Usuário logado:', userCredential.user.email);
-        // Navega para Home após login bem-sucedido
-        navigation.replace('Home'); // Use replace para não poder voltar para o login
+        navigation.replace('Home');
       } else {
-        // --- Cadastro ---
         if (password.length < 6) {
-           Alert.alert('Erro', 'A senha deve ter pelo menos 6 caracteres.');
-           setIsLoading(false); // Interrompe o loading
-           return; // Sai da função
+          Alert.alert('Erro', 'A senha deve ter pelo menos 6 caracteres.');
+          setIsLoading(false);
+          return;
         }
+
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         console.log('Usuário criado:', userCredential.user.email);
 
-        // Chama a função para criar o perfil no Firestore
-        await createInitialUserProfile(userCredential.user, name); // Passa o nome
+        await createInitialUserProfile(userCredential.user, name);
 
         Alert.alert('Sucesso', 'Conta criada com sucesso! Faça o login para continuar.');
-        setIsLogin(true); // Muda para a tela de login após cadastro
-        // Limpa os campos após cadastro (opcional)
+        setIsLogin(true);
         setName('');
         setEmail('');
         setPassword('');
       }
     } catch (error) {
-      console.error("Erro de autenticação:", error.code, error.message); // Log detalhado do erro
+      console.error("Erro de autenticação:", error.code, error.message);
       let errorMessage = 'Ocorreu um erro. Tente novamente.';
-      // Mapeamento de erros mais robusto
+
       switch (error.code) {
         case 'auth/invalid-email':
           errorMessage = 'O formato do email é inválido.';
@@ -91,19 +85,17 @@ export default function LoginScreen({ navigation }) {
           errorMessage = 'Login com email/senha não está habilitado no Firebase.';
           break;
         default:
-          // Para outros erros do Firebase ou erros da função createInitialUserProfile
           errorMessage = `Erro: ${error.message}`;
       }
+
       Alert.alert('Erro', errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Função para alternar entre Login e Cadastro
   const toggleAuthMode = () => {
     setIsLogin(!isLogin);
-    // Limpa os campos ao trocar de modo (opcional, mas melhora UX)
     setName('');
     setEmail('');
     setPassword('');
@@ -113,14 +105,13 @@ export default function LoginScreen({ navigation }) {
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20} // Ajuste fino opcional
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
     >
       <ImageBackground
         source={require('../assets/fundoLogin.png')}
         style={styles.background}
         resizeMode="cover"
       >
-        {/* ScrollView para acomodar conteúdo em telas menores ou quando teclado abre */}
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <View style={styles.logoContainer}>
             <Image
@@ -128,12 +119,9 @@ export default function LoginScreen({ navigation }) {
               style={styles.logo}
               resizeMode="contain"
             />
-            {/* Título movido para dentro do container branco para melhor contraste */}
-            {/* <Text style={styles.title}>Estudos e Cursos</Text> */}
           </View>
 
           <View style={styles.formContainer}>
-            {/* Título dentro do container branco */}
             <Text style={styles.formTitle}>
               {isLogin ? 'Bem-vindo(a)!' : 'Crie sua Conta'}
             </Text>
@@ -141,14 +129,13 @@ export default function LoginScreen({ navigation }) {
               {isLogin ? 'Faça login para continuar' : 'Preencha os dados abaixo'}
             </Text>
 
-            {/* Campo Nome (aparece apenas no cadastro) */}
             {!isLogin && (
               <TextInput
                 style={styles.input}
                 placeholder="Nome Completo"
                 value={name}
                 onChangeText={setName}
-                autoCapitalize="words" // Primeira letra de cada palavra maiúscula
+                autoCapitalize="words"
               />
             )}
 
@@ -159,7 +146,7 @@ export default function LoginScreen({ navigation }) {
               onChangeText={setEmail}
               keyboardType="email-address"
               autoCapitalize="none"
-              autoComplete="email" // Ajuda no preenchimento automático
+              autoComplete="email"
             />
 
             <TextInput
@@ -168,11 +155,11 @@ export default function LoginScreen({ navigation }) {
               value={password}
               onChangeText={setPassword}
               secureTextEntry
-              autoComplete="password" // Ajuda no preenchimento automático (em alguns casos)
+              autoComplete="password"
             />
 
             <TouchableOpacity
-              style={[styles.button, isLoading && styles.buttonDisabled]} // Estilo dinâmico para botão desabilitado
+              style={[styles.button, isLoading && styles.buttonDisabled]}
               onPress={handleAuth}
               disabled={isLoading}
             >
@@ -187,8 +174,8 @@ export default function LoginScreen({ navigation }) {
 
             <TouchableOpacity
               style={styles.switchButton}
-              onPress={toggleAuthMode} // Usa a função de toggle
-              disabled={isLoading} // Desabilita enquanto carrega
+              onPress={toggleAuthMode}
+              disabled={isLoading}
             >
               <Text style={styles.switchButtonText}>
                 {isLogin
@@ -203,11 +190,10 @@ export default function LoginScreen({ navigation }) {
   );
 }
 
-// --- Estilos (com algumas melhorias) ---
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f0f0f0', // Cor de fundo caso a imagem não carregue
+    backgroundColor: '#f0f0f0',
   },
   background: {
     flex: 1,
@@ -215,77 +201,71 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   scrollContainer: {
-    flexGrow: 1, // Permite que o conteúdo cresça para preencher o espaço
-    justifyContent: 'center', // Centraliza o conteúdo verticalmente
-    paddingBottom: 20, // Espaço extra no final
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingBottom: 20,
   },
   logoContainer: {
     alignItems: 'center',
-    // Ajuste as margens conforme necessário para o seu logo
-    marginTop: Platform.OS === 'ios' ? 80 : 60, // Mais espaço no iOS devido à status bar
-    marginBottom: 20, // Reduzido para aproximar do form
+    marginTop: Platform.OS === 'ios' ? 80 : 60,
+    marginBottom: 20,
   },
   logo: {
-    width: 250, // Tamanho um pouco menor pode ser mais agradável
+    width: 250,
     height: 250,
-    // Removido o título daqui para melhor contraste
   },
-  // Removido o estilo 'title' que estava sobre a imagem
   formContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)', // Leve transparência para integrar com o fundo
-    marginHorizontal: 20, // Margens laterais
-    borderRadius: 20, // Bordas mais arredondadas
-    paddingHorizontal: 25, // Mais padding interno
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    marginHorizontal: 20,
+    borderRadius: 20,
+    paddingHorizontal: 25,
     paddingTop: 30,
-    paddingBottom: 30, // Aumentar padding inferior
+    paddingBottom: 30,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4, // Sombra um pouco mais pronunciada
-    },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 8,
   },
   formTitle: {
-    fontSize: 26, // Título maior
+    fontSize: 26,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 8, // Menos espaço antes do subtítulo
+    marginBottom: 8,
     textAlign: 'center',
   },
   formSubtitle: {
     fontSize: 16,
     color: '#666',
-    marginBottom: 25, // Mais espaço antes dos inputs
+    marginBottom: 25,
     textAlign: 'center',
   },
   input: {
-    backgroundColor: '#f7f7f7', // Cor de fundo sutil para os inputs
-    borderRadius: 12, // Bordas mais arredondadas
-    paddingVertical: 14, // Ajuste de padding vertical
-    paddingHorizontal: 18, // Ajuste de padding horizontal
-    marginBottom: 18, // Mais espaço entre inputs
+    backgroundColor: '#f7f7f7',
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 18,
+    marginBottom: 18,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: '#ddd', // Borda mais suave
-    color: '#333', // Cor do texto digitado
+    borderColor: '#ddd',
+    color: '#333',
   },
   button: {
-    backgroundColor: '#4a6bff', // Sua cor principal
+    backgroundColor: '#4a6bff',
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
-    marginTop: 15, // Espaço acima do botão
-    shadowColor: '#4a6bff', // Sombra da cor do botão
+    marginTop: 15,
+    shadowColor: '#4a6bff',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.4,
     shadowRadius: 4,
     elevation: 5,
   },
   buttonDisabled: {
-    backgroundColor: '#a9b8ff', // Cor mais clara quando desabilitado
-    elevation: 0, // Remove sombra quando desabilitado
+    backgroundColor: '#a9b8ff',
+    elevation: 0,
     shadowOpacity: 0,
   },
   buttonText: {
@@ -294,13 +274,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   switchButton: {
-    marginTop: 25, // Mais espaço acima do botão de troca
-    padding: 10, // Área de toque maior
+    marginTop: 25,
+    padding: 10,
     alignItems: 'center',
   },
   switchButtonText: {
     color: '#4a6bff',
     fontSize: 15,
-    fontWeight: '500', // Peso da fonte médio
+    fontWeight: '500',
   },
 });
