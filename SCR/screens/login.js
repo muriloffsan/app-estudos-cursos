@@ -8,16 +8,15 @@ import {
   Image, 
   KeyboardAvoidingView, 
   Platform,
-  Alert,
   ActivityIndicator,
-  ImageBackground
+  ImageBackground,
+  Alert // Importando o Alert do React Native
 } from 'react-native';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { initializeApp } from 'firebase/app';
 import { firebaseConfig } from '../../firebase';
 import { createInitialUserProfile } from '../../firebase/firestore';
 
-// Inicializa o Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
@@ -26,6 +25,7 @@ export default function LoginScreen({ navigation }) {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
+  const [errorMessage, setErrorMessage] = useState(''); // Mensagem de erro
 
   const handleAuth = async () => {
     if (!email || !password) {
@@ -43,11 +43,28 @@ export default function LoginScreen({ navigation }) {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         console.log('Usuário criado:', userCredential.user.email);
         await createInitialUserProfile(userCredential.user);
-        Alert.alert('Sucesso', 'Conta criada com sucesso!');
-        setIsLogin(true);
+
+        // Mostra a mensagem de sucesso com o Alert
+        Alert.alert(
+          'Cadastro realizado!',
+          'Sua conta foi criada com sucesso.',
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                setIsLogin(true); // Muda para a tela de login após o cadastro
+                navigation.replace('Login'); // Redireciona para a tela de login
+                console.log("Cadastro bem-sucedido, redirecionando para o login.");
+              },
+            },
+          ],
+          { cancelable: false }
+        );
       }
     } catch (error) {
       let errorMessage = 'Ocorreu um erro. Tente novamente.';
+      console.log('Erro ao autenticar:', error.code);
+
       if (error.code === 'auth/invalid-email') {
         errorMessage = 'Email inválido.';
       } else if (error.code === 'auth/user-disabled') {
@@ -61,6 +78,7 @@ export default function LoginScreen({ navigation }) {
       } else if (error.code === 'auth/weak-password') {
         errorMessage = 'A senha deve ter pelo menos 6 caracteres.';
       }
+
       Alert.alert('Erro', errorMessage);
     } finally {
       setIsLoading(false);
@@ -73,7 +91,7 @@ export default function LoginScreen({ navigation }) {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ImageBackground
-        source={require('../assets/fundoLogin.png')} // Imagem de fundo
+        source={require('../assets/fundoLogin.png')}
         style={styles.background}
         resizeMode="cover"
       >
