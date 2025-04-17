@@ -1,128 +1,42 @@
-import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, arrayUnion, query, where } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../firebase'; // Importa a instância 'db' do firestore inicializada
 
-const db = getFirestore();
-
-// Funções para Cursos
-export const getCursos = async () => {
-  try {
-    const cursosRef = collection(db, 'cursos');
-    const snapshot = await getDocs(cursosRef);
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
-  } catch (error) {
-    console.error('Erro ao buscar cursos:', error);
-    throw error;
+/**
+ * Cria um documento inicial para um novo usuário na coleção 'users'.
+ * @param {object} user - O objeto de usuário retornado pelo Firebase Auth.
+ * @param {string} name - O nome fornecido pelo usuário durante o cadastro.
+ */
+export const createInitialUserProfile = async (user, name) => {
+  if (!user || !user.uid) {
+    console.error("Erro: Objeto de usuário inválido ou UID ausente.");
+    throw new Error("Não foi possível criar o perfil: usuário inválido.");
   }
-};
-
-export const getCursoById = async (cursoId) => {
-  try {
-    const cursoRef = doc(db, 'cursos', cursoId);
-    const cursoDoc = await getDoc(cursoRef);
-    if (cursoDoc.exists()) {
-      return {
-        id: cursoDoc.id,
-        ...cursoDoc.data()
-      };
-    }
-    return null;
-  } catch (error) {
-    console.error('Erro ao buscar curso:', error);
-    throw error;
+  if (!name || name.trim() === '') {
+    console.error("Erro: Nome inválido fornecido.");
+    throw new Error("Não foi possível criar o perfil: nome inválido.");
   }
-};
 
-// Funções para Progresso do Usuário
-export const getUserProgress = async (userId, cursoId) => {
-  try {
-    const progressRef = doc(db, 'usuarios', userId, 'progresso', cursoId);
-    const progressDoc = await getDoc(progressRef);
-    if (progressDoc.exists()) {
-      return progressDoc.data();
-    }
-    return {
-      progresso: 0,
-      licoesConcluidas: [],
-      ultimaAtualizacao: new Date()
-    };
-  } catch (error) {
-    console.error('Erro ao buscar progresso:', error);
-    throw error;
-  }
-};
+  // Referência para o documento do usuário na coleção 'users'
+  // Usamos o UID do usuário como ID do documento para fácil acesso
+  const userDocRef = doc(db, 'users', user.uid);
 
-export const updateUserProgress = async (userId, cursoId, licaoId) => {
   try {
-    const progressRef = doc(db, 'usuarios', userId, 'progresso', cursoId);
-    const progressDoc = await getDoc(progressRef);
-    
-    let licoesConcluidas = [];
-    if (progressDoc.exists()) {
-      licoesConcluidas = progressDoc.data().licoesConcluidas || [];
-    }
-    
-    if (!licoesConcluidas.includes(licaoId)) {
-      licoesConcluidas.push(licaoId);
-    }
-    
-    await setDoc(progressRef, {
-      licoesConcluidas,
-      ultimaAtualizacao: new Date()
-    }, { merge: true });
-    
-    return licoesConcluidas;
-  } catch (error) {
-    console.error('Erro ao atualizar progresso:', error);
-    throw error;
-  }
-};
-
-// Funções para Perfil do Usuário
-export const getUserProfile = async (userId) => {
-  try {
-    const userRef = doc(db, 'usuarios', userId);
-    const userDoc = await getDoc(userRef);
-    if (userDoc.exists()) {
-      return userDoc.data();
-    }
-    return null;
-  } catch (error) {
-    console.error('Erro ao buscar perfil:', error);
-    throw error;
-  }
-};
-
-export const updateUserProfile = async (userId, data) => {
-  try {
-    const userRef = doc(db, 'usuarios', userId);
-    await setDoc(userRef, {
-      ...data,
-      ultimaAtualizacao: new Date()
-    }, { merge: true });
-  } catch (error) {
-    console.error('Erro ao atualizar perfil:', error);
-    throw error;
-  }
-};
-
-// Função para criar perfil inicial do usuário
-export const createInitialUserProfile = async (user) => {
-  try {
-    const userRef = doc(db, 'usuarios', user.uid);
-    await setDoc(userRef, {
+    // Dados a serem salvos no Firestore
+    const userData = {
+      uid: user.uid,
       email: user.email,
-      displayName: user.displayName || 'Usuário',
-      photoURL: user.photoURL,
-      dataCriacao: new Date(),
-      ultimaAtualizacao: new Date(),
-      cursosInscritos: [],
-      medalhas: []
-    });
+      name: name.trim(), // Salva o nome sem espaços extras
+      createdAt: serverTimestamp(), // Adiciona um timestamp de quando a conta foi criada
+      // Adicione outros campos iniciais que desejar aqui (ex: photoURL: null, bio: '')
+    };
+
+    // Cria o documento no Firestore
+    await setDoc(userDocRef, userData);
+    console.log('Perfil do usuário criado no Firestore com ID:', user.uid);
+
   } catch (error) {
-    console.error('Erro ao criar perfil inicial:', error);
-    throw error;
+    console.error("Erro ao criar perfil do usuário no Firestore:", error);
+    // Você pode querer lançar o erro novamente ou lidar com ele de forma específica
+    throw error; // Lança o erro para que a tela de login possa tratá-lo se necessário
   }
-}; 
+};

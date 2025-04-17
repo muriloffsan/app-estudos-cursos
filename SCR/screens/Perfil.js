@@ -73,11 +73,8 @@ export default function PerfilScreen({ navigation }) {
       const progressoResultados = await Promise.all(progressoPromises);
       setCursosProgresso(progressoResultados);
       
-      // Calcular cursos concluídos
       const concluidos = progressoResultados.filter(curso => curso.progresso === 100).length;
       setCursosConcluidos(concluidos);
-      
-      // Coletar todas as medalhas
       const todasMedalhas = progressoResultados.flatMap(curso => 
         curso.medalhas.map(medalha => ({
           tipo: medalha,

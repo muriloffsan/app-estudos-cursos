@@ -6,7 +6,6 @@ import { View, ActivityIndicator, TouchableOpacity, Text } from 'react-native';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { app } from './firebase';
 
-// Importando as telas
 import LoginScreen from './SCR/screens/login';
 import HomeScreen from './SCR/screens/Home';
 import CursosScreen from './SCR/screens/Cursos';
