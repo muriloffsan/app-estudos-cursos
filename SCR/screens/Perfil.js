@@ -13,7 +13,6 @@ import {
 import { getAuth, signOut } from 'firebase/auth';
 import { getFirestore, doc, getDoc, collection, getDocs } from 'firebase/firestore';
 import { app } from '../../firebase';
-
 export default function PerfilScreen({ navigation }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);

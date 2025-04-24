@@ -10,24 +10,24 @@ export default function HomeScreen({ navigation }) {
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Estudos e Cursos</Text>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.profileButton}
           onPress={() => navigation.navigate('Perfil')}
         >
-          <Image 
-            source={{ uri: user?.photoURL || 'https://via.placeholder.com/150' }} 
-            style={styles.profileImage} 
+          <Image
+            source={{ uri: user?.photoURL || 'https://via.placeholder.com/150' }}
+            style={styles.profileImage}
           />
         </TouchableOpacity>
       </View>
-      
+
       <View style={styles.welcomeContainer}>
         <Text style={styles.welcomeText}>Olá, {user?.displayName || 'Estudante'}!</Text>
         <Text style={styles.welcomeSubtext}>Continue sua jornada de aprendizado</Text>
       </View>
-      
+
       <View style={styles.menuContainer}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.menuItem}
           onPress={() => navigation.navigate('Cursos')}
         >
@@ -37,8 +37,8 @@ export default function HomeScreen({ navigation }) {
           <Text style={styles.menuTitle}>Cursos</Text>
           <Text style={styles.menuDescription}>Explore todos os cursos disponíveis</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
+
+        <TouchableOpacity
           style={styles.menuItem}
           onPress={() => navigation.navigate('Perfil')}
         >
@@ -49,20 +49,17 @@ export default function HomeScreen({ navigation }) {
           <Text style={styles.menuDescription}>Veja seu progresso e medalhas</Text>
         </TouchableOpacity>
       </View>
-      
+
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Cursos em Destaque</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.cursosScroll}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.cursoCard}
-            onPress={() => navigation.navigate('DetalhesCurso', { 
-              cursoId: 'curso1', 
-              cursoNome: 'Introdução à Programação' 
-            })}
+            onPress={() => navigation.navigate('Perfil')}
           >
-            <Image 
-              source={{ uri: 'https://via.placeholder.com/150' }} 
-              style={styles.cursoImage} 
+            <Image
+              source={{ uri: 'https://via.placeholder.com/150' }}
+              style={styles.cursoImage}
             />
             <View style={[styles.menuIcon, { backgroundColor: '#1abc9c', marginTop: 10 }]}>
               <Text style={styles.menuIconText}>💻</Text>
@@ -70,17 +67,14 @@ export default function HomeScreen({ navigation }) {
             <Text style={styles.cursoNome}>Introdução à Programação</Text>
             <Text style={styles.cursoNivel}>Iniciante</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
+
+          <TouchableOpacity
             style={styles.cursoCard}
-            onPress={() => navigation.navigate('DetalhesCurso', { 
-              cursoId: 'curso2', 
-              cursoNome: 'Desenvolvimento Web' 
-            })}
+            onPress={() => navigation.navigate('Perfil')}
           >
-            <Image 
-              source={{ uri: 'https://via.placeholder.com/150' }} 
-              style={styles.cursoImage} 
+            <Image
+              source={{ uri: 'https://via.placeholder.com/150' }}
+              style={styles.cursoImage}
             />
             <View style={[styles.menuIcon, { backgroundColor: '#f39c12', marginTop: 10 }]}>
               <Text style={styles.menuIconText}>🌐</Text>
@@ -88,17 +82,14 @@ export default function HomeScreen({ navigation }) {
             <Text style={styles.cursoNome}>Desenvolvimento Web</Text>
             <Text style={styles.cursoNivel}>Intermediário</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
+
+          <TouchableOpacity
             style={styles.cursoCard}
-            onPress={() => navigation.navigate('DetalhesCurso', { 
-              cursoId: 'curso3', 
-              cursoNome: 'Design de Interfaces' 
-            })}
+            onPress={() => navigation.navigate('Perfil')}
           >
-            <Image 
-              source={{ uri: 'https://via.placeholder.com/150' }} 
-              style={styles.cursoImage} 
+            <Image
+              source={{ uri: 'https://via.placeholder.com/150' }}
+              style={styles.cursoImage}
             />
             <View style={[styles.menuIcon, { backgroundColor: '#e67e22', marginTop: 10 }]}>
               <Text style={styles.menuIconText}>🎨</Text>
@@ -108,14 +99,14 @@ export default function HomeScreen({ navigation }) {
           </TouchableOpacity>
         </ScrollView>
       </View>
-      
+
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Continue de Onde Parou</Text>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.continueCard}
-          onPress={() => navigation.navigate('DetalhesCurso', { 
-            cursoId: 'curso1', 
-            cursoNome: 'Introdução à Programação' 
+          onPress={() => navigation.navigate('DetalhesCurso', {
+            cursoId: 'curso1',
+            cursoNome: 'Introdução à Programação'
           })}
         >
           <View style={styles.continueInfo}>
@@ -128,7 +119,7 @@ export default function HomeScreen({ navigation }) {
           <Text style={styles.continueIcon}>›</Text>
         </TouchableOpacity>
       </View>
-      
+
       <View style={styles.footer}>
         <Text style={styles.footerText}>© 2023 Estudos e Cursos</Text>
       </View>

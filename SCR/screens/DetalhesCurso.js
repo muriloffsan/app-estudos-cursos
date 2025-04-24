@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { getAuth } from 'firebase/auth';
-import { getCursoById, getUserProgress } from '../../firebase/firestore';
+import { getDoc, doc } from 'firebase/firestore'; // Importe getDoc e doc
+import { db } from '../../firebase'; // Importe a instância do db
 
 export default function DetalhesCursoScreen({ route, navigation }) {
-  const { cursoId, cursoNome } = route.params;
+  const { cursoId } = route.params; // Agora só recebemos o cursoId
   const [curso, setCurso] = useState(null);
   const [loading, setLoading] = useState(true);
   const auth = getAuth();
@@ -12,18 +13,17 @@ export default function DetalhesCursoScreen({ route, navigation }) {
 
   useEffect(() => {
     carregarCurso();
-  }, []);
+  }, [cursoId, userId]);
 
   const carregarCurso = async () => {
     try {
-      const cursoData = await getCursoById(cursoId);
-      if (cursoData) {
-        const progresso = await getUserProgress(userId, cursoId);
-        setCurso({
-          ...cursoData,
-          progresso: progresso.progresso || 0,
-          licoesConcluidas: progresso.licoesConcluidas || []
-        });
+      const cursoRef = doc(db, 'cursos', cursoId); // Referência à coleção 'cursos'
+      const cursoSnap = await getDoc(cursoRef);
+
+      if (cursoSnap.exists()) {
+        setCurso({ id: cursoSnap.id, ...cursoSnap.data() });
+      } else {
+        console.log("Curso não encontrado!");
       }
     } catch (error) {
       console.error('Erro ao carregar curso:', error);
@@ -42,72 +42,75 @@ export default function DetalhesCursoScreen({ route, navigation }) {
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.cursoHeader}>
-        <Image 
-          source={{ uri: curso?.imagem || 'https://via.placeholder.com/150' }} 
-          style={styles.cursoImage} 
-        />
-        <View style={styles.cursoInfo}>
-          <Text style={styles.cursoNome}>{curso?.nome}</Text>
-          <Text style={styles.cursoCategoria}>{curso?.categoria}</Text>
-          <Text style={styles.cursoDescricao}>{curso?.descricao}</Text>
-        </View>
-      </View>
-
-      <View style={styles.content}>
-        <View style={styles.infoSection}>
-          <Text style={styles.sectionTitle}>Sobre o Curso</Text>
-          <Text style={styles.description}>{curso?.descricao || 'Descrição não disponível'}</Text>
-          
-          <View style={styles.statsContainer}>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{curso?.duracao || '0'}</Text>
-              <Text style={styles.statLabel}>Horas</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{curso?.modulos?.length || '0'}</Text>
-              <Text style={styles.statLabel}>Módulos</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{curso?.alunos || '0'}</Text>
-              <Text style={styles.statLabel}>Alunos</Text>
+      {curso && (
+        <View>
+          <View style={styles.cursoHeader}>
+            <Image
+              source={{ uri: curso.imagem || 'https://via.placeholder.com/150' }}
+              style={styles.cursoImage}
+            />
+            <View style={styles.cursoInfo}>
+              <Text style={styles.cursoNome}>{curso.nome}</Text>
+              <Text style={styles.cursoCategoria}>{curso.categoria}</Text>
+              <Text style={styles.cursoDescricao}>{curso.descricao}</Text>
             </View>
           </View>
-        </View>
 
-        <View style={styles.modulosSection}>
-          <Text style={styles.sectionTitle}>Módulos do Curso</Text>
-          {curso?.modulos?.map((modulo, index) => (
-            <TouchableOpacity 
-              key={index}
-              style={styles.moduloCard}
-              onPress={() => navigation.navigate('Modulo', { 
-                cursoId: cursoId,
-                moduloId: index,
-                moduloNome: modulo.titulo
-              })}
-            >
-              <View style={styles.moduloInfo}>
-                <Text style={styles.moduloNumero}>Módulo {index + 1}</Text>
-                <Text style={styles.moduloTitulo}>{modulo.titulo}</Text>
-                <Text style={styles.moduloDescricao}>{modulo.descricao}</Text>
+          <View style={styles.content}>
+            <View style={styles.infoSection}>
+              <Text style={styles.sectionTitle}>Sobre o Curso</Text>
+              <Text style={styles.description}>{curso.descricao || 'Descrição não disponível'}</Text>
+
+              <View style={styles.statsContainer}>
+                <View style={styles.statItem}>
+                  <Text style={styles.statValue}>{curso.duracao || '0'}</Text>
+                  <Text style={styles.statLabel}>Horas</Text>
+                </View>
+                <View style={styles.statItem}>
+                  <Text style={styles.statValue}>{curso.modulos?.length || '0'}</Text>
+                  <Text style={styles.statLabel}>Módulos</Text>
+                </View>
+                <View style={styles.statItem}>
+                  <Text style={styles.statValue}>{curso.alunos || '0'}</Text>
+                  <Text style={styles.statLabel}>Alunos</Text>
+                </View>
               </View>
-              <Text style={styles.moduloIcon}>›</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
+            </View>
 
-      <TouchableOpacity 
-        style={styles.startButton}
-        onPress={() => navigation.navigate('Modulo', { 
-          cursoId: cursoId,
-          moduloId: 0,
-          moduloNome: curso?.modulos?.[0]?.titulo
-        })}
-      >
-        <Text style={styles.startButtonText}>Começar Curso</Text>
-      </TouchableOpacity>
+            <View style={styles.modulosSection}>
+              <Text style={styles.sectionTitle}>Módulos do Curso</Text>
+              {curso.modulos?.map((modulo, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.moduloCard}
+                  onPress={() => navigation.navigate('Modulo', {
+                    cursoId: curso.id,
+                    moduloId: index,
+                    moduloNome: modulo.titulo
+                  })}
+                >
+                  <View style={styles.moduloInfo}>
+                    <Text style={styles.moduloNumero}>Módulo {index + 1}</Text>
+                    <Text style={styles.moduloTitulo}>{modulo.titulo}</Text>
+                    <Text style={styles.moduloDescricao}>{modulo.descricao}</Text>
+                  </View>
+                  <Text style={styles.moduloIcon}>›</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          <TouchableOpacity
+            style={styles.startButton}
+            onPress={() => navigation.navigate('Curso', {
+              cursoId: curso.id,
+              totalLicoes: curso.totalLicoes
+            })}
+          >
+            <Text style={styles.startButtonText}>Ver Progresso</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </ScrollView>
   );
 }
