@@ -29,7 +29,7 @@ export default function HomeScreen({ navigation }) {
       <View style={styles.menuContainer}>
         <TouchableOpacity
           style={styles.menuItem}
-          onPress={() => navigation.navigate('Cursos')}
+          onPress={() => navigation.navigate('Perfil')}
         >
           <View style={[styles.menuIcon, { backgroundColor: '#4a6bff' }]}>
             <Text style={styles.menuIconText}>📚</Text>
@@ -55,7 +55,7 @@ export default function HomeScreen({ navigation }) {
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.cursosScroll}>
           <TouchableOpacity
             style={styles.cursoCard}
-            onPress={() => navigation.navigate('Perfil')}
+            onPress={() => navigation.navigate('AtualizarCurso', { cursoId: 'curso1' })}
           >
             <Image
               source={{ uri: 'https://via.placeholder.com/150' }}
@@ -70,7 +70,7 @@ export default function HomeScreen({ navigation }) {
 
           <TouchableOpacity
             style={styles.cursoCard}
-            onPress={() => navigation.navigate('Perfil')}
+            onPress={() => navigation.navigate('AtualizarCurso', { cursoId: 'curso2' })}
           >
             <Image
               source={{ uri: 'https://via.placeholder.com/150' }}
@@ -85,7 +85,7 @@ export default function HomeScreen({ navigation }) {
 
           <TouchableOpacity
             style={styles.cursoCard}
-            onPress={() => navigation.navigate('Perfil')}
+            onPress={() => navigation.navigate('AtualizarCurso', { cursoId: 'curso3' })}
           >
             <Image
               source={{ uri: 'https://via.placeholder.com/150' }}
@@ -103,21 +103,19 @@ export default function HomeScreen({ navigation }) {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Continue de Onde Parou</Text>
         <TouchableOpacity
-          style={styles.continueCard}
-          onPress={() => navigation.navigate('DetalhesCurso', {
-            cursoId: 'curso1',
-            cursoNome: 'Introdução à Programação'
-          })}
-        >
-          <View style={styles.continueInfo}>
-            <Text style={styles.continueTitle}>Introdução à Programação</Text>
-            <Text style={styles.continueProgress}>Progresso: 0%</Text>
-            <View style={styles.progressoContainer}>
-              <View style={[styles.progressoBar, { width: '0%' }]} />
-            </View>
-          </View>
-          <Text style={styles.continueIcon}>›</Text>
-        </TouchableOpacity>
+  style={styles.continueCard}
+  onPress={() => navigation.navigate('AtualizarCurso', { cursoId: 'curso1' })}
+>
+  <View style={styles.continueInfo}>
+    <Text style={styles.continueTitle}>Introdução à Programação</Text>
+    <Text style={styles.continueProgress}>Progresso: 0%</Text>
+    <View style={styles.progressoContainer}>
+      <View style={[styles.progressoBar, { width: '0%' }]} />
+    </View>
+  </View>
+  <Text style={styles.continueIcon}>›</Text>
+</TouchableOpacity>
+
       </View>
 
       <View style={styles.footer}>

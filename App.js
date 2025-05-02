@@ -8,10 +8,13 @@ import { app } from './firebase';
 
 import LoginScreen from './SCR/screens/login';
 import HomeScreen from './SCR/screens/Home';
-import CursosScreen from './SCR/screens/CursoScreen';
 import PerfilScreen from './SCR/screens/Perfil';
-import DetalhesCursoScreen from './SCR/screens/DetalhesCurso';
 import ModuloScreen from './SCR/screens/Modulo';
+import AtualizarCursoScreen from './SCR/screens/AtualizarCurso';
+
+
+
+
 
 
 const Stack = createStackNavigator();
@@ -65,11 +68,9 @@ export default function App() {
           <>
             <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
             <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
-            <Stack.Screen name="Cursos" component={CursosScreen} options={{ title: 'Cursos' }} />
             <Stack.Screen name="Perfil" component={PerfilScreen} options={{ title: 'Meu Perfil' }} />
-            <Stack.Screen name="DetalhesCurso" component={DetalhesCursoScreen} options={({ route }) => ({ title: route.params.cursoNome })} />
+            <Stack.Screen name="AtualizarCurso" component={AtualizarCursoScreen} options={{ title: 'Atualizar Curso' }} />
             <Stack.Screen name="Modulo" component={ModuloScreen} options={({ route }) => ({ title: route.params.moduloNome })} />
-              
           </>
         ) : (
           <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
