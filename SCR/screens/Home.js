@@ -103,23 +103,23 @@ export default function HomeScreen({ navigation }) {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Continue de Onde Parou</Text>
         <TouchableOpacity
-  style={styles.continueCard}
-  onPress={() => navigation.navigate('AtualizarCurso', { cursoId: 'curso1' })}
->
-  <View style={styles.continueInfo}>
-    <Text style={styles.continueTitle}>Introdução à Programação</Text>
-    <Text style={styles.continueProgress}>Progresso: 0%</Text>
-    <View style={styles.progressoContainer}>
-      <View style={[styles.progressoBar, { width: '0%' }]} />
-    </View>
-  </View>
-  <Text style={styles.continueIcon}>›</Text>
-</TouchableOpacity>
+          style={styles.continueCard}
+          onPress={() => navigation.navigate('AtualizarCurso', { cursoId: 'curso1' })}
+        >
+          <View style={styles.continueInfo}>
+            <Text style={styles.continueTitle}>Progresso toatal dos cursos</Text>
+            <Text style={styles.continueProgress}>Progresso: 0%</Text>
+            <View style={styles.progressoContainer}>
+              <View style={[styles.progressoBar, { width: '0%' }]} />
+            </View>
+          </View>
+          <Text style={styles.continueIcon}>›</Text>
+        </TouchableOpacity>
 
       </View>
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>© 2023 Estudos e Cursos</Text>
+        <Text style={styles.footerText}>© 2025 Estudos e Cursos</Text>
       </View>
     </ScrollView>
   );

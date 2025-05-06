@@ -23,8 +23,6 @@ export default function ModuloScreen({ route, navigation }) {
       const cursoData = await getCursoById(cursoId);
       if (cursoData && cursoData.modulos && cursoData.modulos[moduloId]) {
         setModulo(cursoData.modulos[moduloId]);
-        
-        // Carregar progresso do usuário
         const progressoData = await getUserProgress(userId, cursoId);
         const licoesConcluidas = progressoData.licoesConcluidas || [];
         const totalLicoes = cursoData.modulos[moduloId].licoes.length;
@@ -46,7 +44,6 @@ export default function ModuloScreen({ route, navigation }) {
     try {
       const licoesConcluidas = await updateUserProgress(userId, cursoId, licaoId);
       
-      // Recalcular progresso
       const totalLicoes = modulo.licoes.length;
       const licoesConcluidasModulo = licoesConcluidas.filter(id => 
         modulo.licoes.find(l => l.id === id)
@@ -54,8 +51,6 @@ export default function ModuloScreen({ route, navigation }) {
       
       const novoProgresso = (licoesConcluidasModulo / totalLicoes) * 100;
       setProgresso(novoProgresso);
-      
-      // Verificar medalhas
       verificarMedalhas(novoProgresso);
     } catch (error) {
       console.error('Erro ao atualizar status da lição:', error);
