@@ -1,10 +1,51 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react'; 
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { getAuth } from 'firebase/auth';
+import { doc, getDoc } from '../../firebase/firestore';
+import { db } from '../../firebase'; 
 
 export default function HomeScreen({ navigation }) {
   const auth = getAuth();
   const user = auth.currentUser;
+  const [progressoTotal, setProgressoTotal] = useState(0);
+
+  useEffect(() => {
+  const fetchProgresso = async () => {
+    if (!user) return;
+
+    try {
+      const userDocRef = doc(db, 'users', user.uid);
+      const userSnapshot = await getDoc(userDocRef);
+      if (userSnapshot.exists()) {
+        const dados = userSnapshot.data();
+        console.log("🔥 Dados do Firestore:", dados); 
+        const progresso = dados.progresso || {};
+
+        let total = 0;
+        let completos = 0;
+
+        Object.values(progresso).forEach(curso => {
+          Object.values(curso).forEach(licao => {
+            total += 1;
+            if (licao === true) completos += 1;
+          });
+        });
+
+        console.log(`🎯 Total: ${total}, Completos: ${completos}`);
+        const porcentagem = total === 0 ? 0 : Math.round((completos / total) * 100);
+        setProgressoTotal(porcentagem);
+      } else {
+        console.log("⚠️ Documento do usuário não encontrado.");
+      }
+    } catch (error) {
+      console.error('Erro ao buscar progresso:', error);
+    }
+  };
+
+  if (user) {
+    fetchProgresso();
+  }
+}, [user]);
 
   return (
     <ScrollView style={styles.container}>
@@ -65,7 +106,7 @@ export default function HomeScreen({ navigation }) {
               <Text style={styles.menuIconText}>💻</Text>
             </View>
             <Text style={styles.cursoNome}>Introdução à Programação</Text>
-            <Text style={styles.cursoNivel}>Iniciante</Text>
+            <Text style={styles.cursoNivel}>Iniciante - Curso1</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -80,7 +121,7 @@ export default function HomeScreen({ navigation }) {
               <Text style={styles.menuIconText}>🌐</Text>
             </View>
             <Text style={styles.cursoNome}>Desenvolvimento Web</Text>
-            <Text style={styles.cursoNivel}>Intermediário</Text>
+            <Text style={styles.cursoNivel}>Intermediário - Curso2</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -95,7 +136,7 @@ export default function HomeScreen({ navigation }) {
               <Text style={styles.menuIconText}>🎨</Text>
             </View>
             <Text style={styles.cursoNome}>Design de Interfaces</Text>
-            <Text style={styles.cursoNivel}>Avançado</Text>
+            <Text style={styles.cursoNivel}>Avançado - Curso3</Text>
           </TouchableOpacity>
         </ScrollView>
       </View>
@@ -107,15 +148,14 @@ export default function HomeScreen({ navigation }) {
           onPress={() => navigation.navigate('AtualizarCurso', { cursoId: 'curso1' })}
         >
           <View style={styles.continueInfo}>
-            <Text style={styles.continueTitle}>Progresso toatal dos cursos</Text>
-            <Text style={styles.continueProgress}>Progresso: 0%</Text>
+            <Text style={styles.continueTitle}>Progresso total dos cursos</Text>
+            <Text style={styles.continueProgress}>Progresso: {progressoTotal}%</Text>
             <View style={styles.progressoContainer}>
-              <View style={[styles.progressoBar, { width: '0%' }]} />
+              <View style={[styles.progressoBar, { width: `${progressoTotal}%` }]} />
             </View>
           </View>
           <Text style={styles.continueIcon}>›</Text>
         </TouchableOpacity>
-
       </View>
 
       <View style={styles.footer}>
