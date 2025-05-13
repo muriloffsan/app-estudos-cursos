@@ -70,7 +70,7 @@ export default function App() {
             <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
             <Stack.Screen name="Perfil" component={PerfilScreen} options={{ title: 'Meu Perfil' }} />
             <Stack.Screen name="AtualizarCurso" component={AtualizarCursoScreen} options={{ title: 'Atualizar Curso' }} />
-            <Stack.Screen name="Modulo" component={ModuloScreen} options={({ route }) => ({ title: route.params.moduloNome })} />
+            <Stack.Screen name="Modulo" component={ModuloScreen} options={{ title: 'Módulo' }} />
           </>
         ) : (
           <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />

@@ -1,152 +1,55 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image, Alert } from 'react-native';
-import { getFirestore, doc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
-import { getCursoById, getUserProgress, updateUserProgress } from '../../firebase/firestore';
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 
-export default function ModuloScreen({ route, navigation }) {
-  const { cursoId, moduloId, moduloNome } = route.params;
-  const [modulo, setModulo] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [progresso, setProgresso] = useState(0);
-  
-  const db = getFirestore();
-  const auth = getAuth();
-  const userId = auth.currentUser?.uid;
-
-  useEffect(() => {
-    carregarModulo();
-  }, []);
-
-  const carregarModulo = async () => {
-    try {
-      const cursoData = await getCursoById(cursoId);
-      if (cursoData && cursoData.modulos && cursoData.modulos[moduloId]) {
-        setModulo(cursoData.modulos[moduloId]);
-        const progressoData = await getUserProgress(userId, cursoId);
-        const licoesConcluidas = progressoData.licoesConcluidas || [];
-        const totalLicoes = cursoData.modulos[moduloId].licoes.length;
-        const licoesConcluidasModulo = licoesConcluidas.filter(id => 
-          cursoData.modulos[moduloId].licoes.find(l => l.id === id)
-        ).length;
-        
-        setProgresso((licoesConcluidasModulo / totalLicoes) * 100);
-      }
-    } catch (error) {
-      console.error('Erro ao carregar módulo:', error);
-      Alert.alert('Erro', 'Não foi possível carregar o módulo. Tente novamente.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const toggleLicaoConcluida = async (licaoId) => {
-    try {
-      const licoesConcluidas = await updateUserProgress(userId, cursoId, licaoId);
-      
-      const totalLicoes = modulo.licoes.length;
-      const licoesConcluidasModulo = licoesConcluidas.filter(id => 
-        modulo.licoes.find(l => l.id === id)
-      ).length;
-      
-      const novoProgresso = (licoesConcluidasModulo / totalLicoes) * 100;
-      setProgresso(novoProgresso);
-      verificarMedalhas(novoProgresso);
-    } catch (error) {
-      console.error('Erro ao atualizar status da lição:', error);
-      Alert.alert('Erro', 'Não foi possível atualizar o status da lição. Tente novamente.');
-    }
-  };
-
-  const verificarMedalhas = async (novoProgresso) => {
-    if (!userId) return;
-
-    try {
-      const userMedalhasRef = doc(db, 'usuarios', userId, 'medalhas', cursoId);
-      const userMedalhasDoc = await getDoc(userMedalhasRef);
-      const medalhasAtuais = userMedalhasDoc.exists() ? userMedalhasDoc.data().medalhas || [] : [];
-      
-      let novasMedalhas = [];
-      
-      // Verificar medalhas baseadas no progresso
-      if (novoProgresso >= 25 && !medalhasAtuais.includes('bronze')) {
-        novasMedalhas.push('bronze');
-      }
-      if (novoProgresso >= 50 && !medalhasAtuais.includes('prata')) {
-        novasMedalhas.push('prata');
-      }
-      if (novoProgresso >= 75 && !medalhasAtuais.includes('ouro')) {
-        novasMedalhas.push('ouro');
-      }
-      if (novoProgresso === 100 && !medalhasAtuais.includes('diamante')) {
-        novasMedalhas.push('diamante');
-      }
-      
-      if (novasMedalhas.length > 0) {
-        await updateDoc(userMedalhasRef, {
-          medalhas: [...medalhasAtuais, ...novasMedalhas],
-          ultimaAtualizacao: new Date()
-        }, { merge: true });
-        
-        Alert.alert(
-          'Parabéns! 🎉',
-          `Você conquistou ${novasMedalhas.length} nova(s) medalha(s)!`,
-          [{ text: 'OK' }]
-        );
-      }
-    } catch (error) {
-      console.error('Erro ao verificar medalhas:', error);
-    }
-  };
-
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Carregando...</Text>
-      </View>
-    );
-  }
-
+export default function CursosScreen() {
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.progressoContainer}>
-        <View style={styles.progressoInfo}>
-          <Text style={styles.progressoText}>Progresso</Text>
-          <Text style={styles.progressoPercentual}>{progresso}%</Text>
-        </View>
-        <View style={styles.progressoBarContainer}>
-          <View style={[styles.progressoBar, { width: `${progresso}%` }]} />
-        </View>
+      <Text style={styles.header}>🚀 Bem-vindo ao seu Futuro!</Text>
+      <Text style={styles.intro}>
+        Aqui, você não apenas estuda. Você evolui, cresce e se transforma.
+        Escolha o curso ideal para o seu momento e mergulhe na jornada do conhecimento.
+      </Text>
+
+      <View style={styles.cursoBox}>
+        <Text style={styles.cursoEmoji}>💻</Text>
+        <Text style={styles.cursoTitulo}>Curso 1: Introdução à Programação</Text>
+        <Text style={styles.cursoNivel}>Nível: Iniciante</Text>
+        <Text style={styles.cursoTexto}>
+          Nunca escreveu uma linha de código? Perfeito. Aqui é o começo.
+          Aprenda lógica de programação, descubra como os computadores pensam
+          e dê seus primeiros passos como desenvolvedor. Ao final, você estará pronto
+          para explorar qualquer linguagem com confiança.
+        </Text>
       </View>
 
-      <View style={styles.content}>
-        <Text style={styles.moduloDescricao}>{modulo?.descricao || 'Descrição não disponível'}</Text>
-        
-        <View style={styles.licoesContainer}>
-          <Text style={styles.licoesTitle}>Lições</Text>
-          {modulo?.licoes?.map((licao, index) => (
-            <TouchableOpacity 
-              key={licao.id}
-              style={styles.licaoCard}
-              onPress={() => toggleLicaoConcluida(licao.id)}
-            >
-              <View style={styles.licaoCheckbox}>
-                <View style={[styles.checkbox, licao.concluida && styles.checkboxChecked]}>
-                  {licao.concluida && <Text style={styles.checkmark}>✓</Text>}
-                </View>
-              </View>
-              
-              <View style={styles.licaoInfo}>
-                <Text style={styles.licaoNumero}>Lição {index + 1}</Text>
-                <Text style={styles.licaoTitulo}>{licao.titulo}</Text>
-                <Text style={styles.licaoDuracao}>{licao.duracao || '5 min'}</Text>
-              </View>
-              
-              <Text style={styles.licaoIcon}>›</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+      <View style={styles.cursoBox}>
+        <Text style={styles.cursoEmoji}>🌐</Text>
+        <Text style={styles.cursoTitulo}>Curso 2: Desenvolvimento Web</Text>
+        <Text style={styles.cursoNivel}>Nível: Intermediário</Text>
+        <Text style={styles.cursoTexto}>
+          HTML, CSS e JavaScript deixarão de ser mistério. Neste curso, você vai
+          criar páginas web do zero, aplicar estilos com precisão e adicionar
+          interatividade poderosa. Aprenda como funciona a internet e construa
+          sites modernos e responsivos como um verdadeiro web developer.
+        </Text>
       </View>
+
+      <View style={styles.cursoBox}>
+        <Text style={styles.cursoEmoji}>🎨</Text>
+        <Text style={styles.cursoTitulo}>Curso 3: Design de Interfaces</Text>
+        <Text style={styles.cursoNivel}>Nível: Avançado</Text>
+        <Text style={styles.cursoTexto}>
+          A tecnologia só encanta quando é fácil de usar. Aprenda os segredos por
+          trás de interfaces que engajam e fidelizam. Descubra o universo do UI/UX,
+          domine princípios de design e transforme ideias em experiências digitais
+          memoráveis. Ideal para quem quer ir além do código.
+        </Text>
+      </View>
+
+      <Text style={styles.finalText}>
+        📚 Escolha o seu ponto de partida. O futuro começa com um clique.  
+        E ele está logo ali, no próximo curso.
+      </Text>
     </ScrollView>
   );
 }
@@ -154,126 +57,62 @@ export default function ModuloScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    fontSize: 16,
-    color: '#666',
-  },
-  progressoContainer: {
-    backgroundColor: '#fff',
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  progressoInfo: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 5,
-  },
-  progressoText: {
-    fontSize: 14,
-    color: '#666',
-  },
-  progressoPercentual: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#4a6bff',
-  },
-  progressoBarContainer: {
-    height: 6,
-    backgroundColor: '#e0e0e0',
-    borderRadius: 3,
-  },
-  progressoBar: {
-    height: '100%',
-    backgroundColor: '#4a6bff',
-    borderRadius: 3,
-  },
-  content: {
+    backgroundColor: '#f7f9fc',
     padding: 20,
   },
-  moduloDescricao: {
-    fontSize: 16,
-    color: '#666',
-    lineHeight: 24,
-    marginBottom: 20,
-  },
-  licoesContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 15,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  licoesTitle: {
-    fontSize: 20,
+  header: {
+    fontSize: 26,
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 15,
-  },
-  licaoCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f8f9ff',
-    borderRadius: 10,
-    padding: 15,
+    color: '#1a1a1a',
+    textAlign: 'center',
     marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
   },
-  licaoCheckbox: {
-    marginRight: 15,
+  intro: {
+    fontSize: 15,
+    color: '#444',
+    textAlign: 'center',
+    marginBottom: 25,
+    lineHeight: 22,
   },
-  checkbox: {
-    width: 24,
-    height: 24,
+  cursoBox: {
+    backgroundColor: '#fff',
     borderRadius: 12,
-    borderWidth: 2,
-    borderColor: '#4a6bff',
-    justifyContent: 'center',
-    alignItems: 'center',
+    padding: 18,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  checkboxChecked: {
-    backgroundColor: '#4a6bff',
+  cursoEmoji: {
+    fontSize: 28,
+    textAlign: 'center',
+    marginBottom: 10,
   },
-  checkmark: {
-    color: '#fff',
+  cursoTitulo: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#2c3e50',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  cursoNivel: {
+    fontSize: 13,
+    color: '#888',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  cursoTexto: {
     fontSize: 14,
-    fontWeight: 'bold',
+    color: '#444',
+    lineHeight: 22,
+    textAlign: 'justify',
   },
-  licaoInfo: {
-    flex: 1,
+  finalText: {
+    fontSize: 15,
+    color: '#2c3e50',
+    textAlign: 'center',
+    marginTop: 20,
+    fontStyle: 'italic',
   },
-  licaoNumero: {
-    fontSize: 12,
-    color: '#888',
-    marginBottom: 2,
-  },
-  licaoTitulo: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 2,
-  },
-  licaoDuracao: {
-    fontSize: 12,
-    color: '#888',
-  },
-  licaoIcon: {
-    fontSize: 24,
-    color: '#ccc',
-    marginLeft: 10,
-  },
-}); 
+});

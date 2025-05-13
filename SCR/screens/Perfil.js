@@ -5,7 +5,6 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { Feather } from '@expo/vector-icons';
 
-
 export default function Perfil({ navigation }) {
   const [medalhas, setMedalhas] = useState({});
   const [cursosIniciados, setCursosIniciados] = useState(0);
