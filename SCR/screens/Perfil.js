@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Alert } from 'react-native';
-import { getAuth, signOut } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../../firebase';
+import { supabase } from '../../supabaseClient'; // Seu cliente supabase configurado
 import { Feather } from '@expo/vector-icons';
 
 export default function Perfil({ navigation }) {
@@ -11,75 +9,85 @@ export default function Perfil({ navigation }) {
   const [cursosFinalizados, setCursosFinalizados] = useState(0);
   const [nomeUsuario, setNomeUsuario] = useState('');
   const [emailUsuario, setEmailUsuario] = useState('');
-  const [fotoUsuario, setFotoUsuario] = useState('');
-  const auth = getAuth();
-  const user = auth.currentUser;
+  const [fotoUsuario, setFotoUsuario] = useState('https://www.example.com/default-avatar.png');
 
   useEffect(() => {
     const buscarDadosUsuario = async () => {
-      if (!user) return;
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
-      if (userDoc.exists()) {
-        const data = userDoc.data();
-        setNomeUsuario(data.name);
-        setEmailUsuario(user.email);
-        setFotoUsuario(data.photoURL || 'https://www.example.com/default-avatar.png');
-        const progresso = data.progresso || {};
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
 
-        let cursosIniciadosCount = 0;
-        let cursosFinalizadosCount = 0;
-        const novasMedalhas = {};
-
-        Object.entries(progresso).forEach(([curso, licoes]) => {
-          const todasConcluidas = Object.values(licoes).every((v) => v === true);
-
-          if (todasConcluidas) {
-            cursosFinalizadosCount += 1;  // Conta cursos finalizados
-          } else if (Object.values(licoes).some((v) => v === true)) {
-            cursosIniciadosCount += 1;  // Conta cursos iniciados
-          }
-
-          novasMedalhas[curso] = todasConcluidas;
-        });
-
-        setCursosIniciados(cursosIniciadosCount);
-        setCursosFinalizados(cursosFinalizadosCount);
-        setMedalhas(novasMedalhas);
+      if (error || !user) {
+        console.error('Erro ao obter usuário:', error);
+        return;
       }
+
+      const { data, error: userError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('uid', user.id)
+        .single();
+
+      if (userError || !data) {
+        console.error('Erro ao buscar dados do usuário:', userError);
+        return;
+      }
+
+      setNomeUsuario(data.name);
+      setEmailUsuario(user.email);
+      // setFotoUsuario(data.photoURL || default) — adicione esse campo se quiser no Supabase
+      const progresso = data.progresso || {};
+
+      let cursosIniciadosCount = 0;
+      let cursosFinalizadosCount = 0;
+      const novasMedalhas = {};
+
+      Object.entries(progresso).forEach(([curso, licoes]) => {
+        const todasConcluidas = Object.values(licoes).every((v) => v === true);
+
+        if (todasConcluidas) {
+          cursosFinalizadosCount += 1;
+        } else if (Object.values(licoes).some((v) => v === true)) {
+          cursosIniciadosCount += 1;
+        }
+
+        novasMedalhas[curso] = todasConcluidas;
+      });
+
+      setCursosIniciados(cursosIniciadosCount);
+      setCursosFinalizados(cursosFinalizadosCount);
+      setMedalhas(novasMedalhas);
     };
 
     buscarDadosUsuario();
   }, []);
 
   const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      if (navigation) navigation.replace('Login');
-    } catch (error) {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
       Alert.alert('Erro ao sair', error.message);
+    } else if (navigation) {
+      navigation.replace('Login');
     }
   };
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        {/* Botão de Seta para Voltar */}
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.voltarBtn}>
           <Feather name="arrow-left" size={30} color="#333" />
         </TouchableOpacity>
         <Text style={styles.titulo}>Perfil de {nomeUsuario}</Text>
       </View>
 
-      {/* Foto de Perfil */}
       <View style={styles.fotoContainer}>
         <Image source={{ uri: fotoUsuario }} style={styles.fotoPerfil} />
       </View>
 
-      {/* Nome e Email */}
       <Text style={styles.nomeUsuario}>{nomeUsuario}</Text>
       <Text style={styles.emailUsuario}>{emailUsuario}</Text>
 
-      {/* Resumo de Cursos */}
       <View style={styles.resumoContainer}>
         <View style={styles.resumoBox}>
           <Text style={styles.resumoTitulo}>Cursos Iniciados</Text>
@@ -95,7 +103,6 @@ export default function Perfil({ navigation }) {
         </View>
       </View>
 
-      {/* Medalhas de Cursos */}
       <Text style={styles.subtitulo}>Medalhas de Cursos</Text>
       {Object.keys(medalhas).map((curso) => (
         <View key={curso} style={styles.medalhaContainer}>
@@ -116,7 +123,6 @@ export default function Perfil({ navigation }) {
         </View>
       ))}
 
-      {/* Botão de Logout */}
       <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
         <Text style={styles.logoutText}>Sair</Text>
       </TouchableOpacity>

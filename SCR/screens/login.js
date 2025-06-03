@@ -14,13 +14,7 @@ import {
   Alert
 } from 'react-native';
 
-import { auth } from '../../firebase';
-import { createInitialUserProfile } from '../../firebase/firestore';
-import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword
-} from 'firebase/auth';
-
+import { signUpAndCreateProfile, loginWithEmail } from '../../supabase/auth'; 
 export default function LoginScreen({ navigation }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -37,8 +31,8 @@ export default function LoginScreen({ navigation }) {
     setIsLoading(true);
     try {
       if (isLogin) {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        console.log('Usuário logado:', userCredential.user.email);
+        const user = await loginWithEmail({ email, password });
+        console.log('Usuário logado:', user.email);
         navigation.replace('Home');
       } else {
         if (password.length < 6) {
@@ -47,10 +41,7 @@ export default function LoginScreen({ navigation }) {
           return;
         }
 
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        console.log('Usuário criado:', userCredential.user.email);
-
-        await createInitialUserProfile(userCredential.user, name);
+        await signUpAndCreateProfile({ email, password, name });
 
         Alert.alert('Sucesso', 'Conta criada com sucesso! Faça o login para continuar.');
         setIsLogin(true);
@@ -59,36 +50,8 @@ export default function LoginScreen({ navigation }) {
         setPassword('');
       }
     } catch (error) {
-      console.error("Erro de autenticação:", error.code, error.message);
-      let errorMessage = 'Ocorreu um erro. Tente novamente.';
-
-      switch (error.code) {
-        case 'auth/invalid-email':
-          errorMessage = 'O formato do email é inválido.';
-          break;
-        case 'auth/user-disabled':
-          errorMessage = 'Este usuário foi desativado.';
-          break;
-        case 'auth/user-not-found':
-          errorMessage = 'Nenhum usuário encontrado com este email.';
-          break;
-        case 'auth/wrong-password':
-          errorMessage = 'Senha incorreta. Tente novamente.';
-          break;
-        case 'auth/email-already-in-use':
-          errorMessage = 'Este email já está sendo usado por outra conta.';
-          break;
-        case 'auth/weak-password':
-          errorMessage = 'A senha é muito fraca. Use pelo menos 6 caracteres.';
-          break;
-        case 'auth/operation-not-allowed':
-          errorMessage = 'Login com email/senha não está habilitado no Firebase.';
-          break;
-        default:
-          errorMessage = `Erro: ${error.message}`;
-      }
-
-      Alert.alert('Erro', errorMessage);
+      console.error("Erro de autenticação:", error.message);
+      Alert.alert('Erro', error.message || 'Ocorreu um erro.');
     } finally {
       setIsLoading(false);
     }

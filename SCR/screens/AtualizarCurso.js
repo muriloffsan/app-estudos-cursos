@@ -1,25 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'react-native';
-import { getAuth } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../../firebase';
-import { atualizarProgressoCurso } from '../../firebase/firestore';
+import { supabase } from '../../supabase/supabase';
 
 export default function AtualizarCurso({ route, navigation }) {
   const { cursoId } = route.params;
-  const auth = getAuth();
-  const user = auth.currentUser;
+  const [userId, setUserId] = useState(null);
   const [licoes, setLicoes] = useState({});
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const fetchProgress = async () => {
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
-      if (userDoc.exists()) {
-        const data = userDoc.data();
-        setLicoes(data.progresso[cursoId] || {});
+      const { data: userSession } = await supabase.auth.getUser();
+      const user = userSession?.user;
+      if (!user) return Alert.alert('Erro', 'Usuário não autenticado.');
+
+      setUserId(user.id);
+
+      const { data, error } = await supabase
+        .from('users')
+        .select('progresso')
+        .eq('uid', user.id)
+        .single();
+
+      if (error) {
+        console.error('Erro ao buscar progresso:', error);
+        return Alert.alert('Erro', 'Não foi possível carregar o progresso.');
       }
+
+      setLicoes(data.progresso?.[cursoId] || {});
     };
+
     fetchProgress();
   }, []);
 
@@ -31,11 +41,34 @@ export default function AtualizarCurso({ route, navigation }) {
   };
 
   const salvarProgresso = async () => {
+    if (!userId) return Alert.alert('Erro', 'Usuário não identificado.');
     setIsSaving(true);
+
     try {
-      await atualizarProgressoCurso(user.uid, cursoId, licoes);
+      // Busca progresso atual
+      const { data: userData, error: fetchError } = await supabase
+        .from('users')
+        .select('progresso')
+        .eq('uid', userId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      const progressoAtualizado = {
+        ...userData.progresso,
+        [cursoId]: licoes
+      };
+
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({ progresso: progressoAtualizado })
+        .eq('uid', userId);
+
+      if (updateError) throw updateError;
+
       Alert.alert('Sucesso', 'Progresso salvo com sucesso!');
     } catch (err) {
+      console.error('Erro ao salvar progresso:', err);
       Alert.alert('Erro', 'Erro ao salvar progresso.');
     } finally {
       setIsSaving(false);

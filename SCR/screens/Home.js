@@ -1,10 +1,20 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Image } from 'react-native';
-import { getAuth } from 'firebase/auth';
+import { useEffect, useState } from 'react';
+import { supabase } from '../../supabase/supabase';
+
 
 export default function HomeScreen({ navigation }) {
-  const auth = getAuth();
-  const user = auth.currentUser;
+  const [user, setUser] = useState(null);
+
+useEffect(() => {
+  const getUser = async () => {
+    const { data } = await supabase.auth.getUser();
+    setUser(data?.user ?? null);
+  };
+  getUser();
+}, []);
+
 
   return (
     <ScrollView style={styles.container}>
