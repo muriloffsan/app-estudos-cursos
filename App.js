@@ -22,7 +22,11 @@ export default function App() {
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Perfil" component={PerfilScreen} />
-        <Stack.Screen name="AtualizarCurso" component={AtualizarCursoScreen} />
+         <Stack.Screen
+            name="AtualizarCurso"
+            component={AtualizarCursoScreen}
+            options={{ headerShown: true, title: 'Atualizar Curso' }}
+          />
         <Stack.Screen name="Modulo" component={ModuloScreen} />
       </Stack.Navigator>
     </NavigationContainer>

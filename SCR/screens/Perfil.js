@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Alert } from 'react-native';
-import { supabase } from '../../supabaseClient'; // Seu cliente supabase configurado
+import { supabase } from '../../supabase/supabase'; // Seu cliente supabase configurado
 import { Feather } from '@expo/vector-icons';
 
 export default function Perfil({ navigation }) {
