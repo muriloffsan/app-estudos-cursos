@@ -6,14 +6,42 @@ import { supabase } from '../../supabase/supabase';
 
 export default function HomeScreen({ navigation }) {
   const [user, setUser] = useState(null);
+  const [progressoTotal, setProgressoTotal] = useState(0);
 
 useEffect(() => {
-  const getUser = async () => {
-    const { data } = await supabase.auth.getUser();
-    setUser(data?.user ?? null);
+  const fetchProgresso = async () => {
+    const { data: sessionData, error: sessionError } = await supabase.auth.getUser();
+    const user = sessionData?.user;
+    if (!user || sessionError) return;
+
+    setUser(user); // já fazia isso
+
+    const { data, error } = await supabase
+      .from('users')
+      .select('progresso')
+      .eq('uid', user.id)
+      .single();
+
+    if (error || !data) {
+      console.error('Erro ao buscar progresso:', error);
+      return;
+    }
+
+    const progresso = data.progresso;
+    const totalLicoes = Object.values(progresso)
+      .map((curso) => Object.values(curso))
+      .flat();
+
+    const concluidas = totalLicoes.filter((val) => val === true).length;
+    const porcentagem = totalLicoes.length === 0 ? 0 : Math.round((concluidas / totalLicoes.length) * 100);
+
+
+    setProgressoTotal(porcentagem);
   };
-  getUser();
+
+  fetchProgresso();
 }, []);
+
 
 
   return (
@@ -117,11 +145,12 @@ useEffect(() => {
           onPress={() => navigation.navigate('AtualizarCurso', { cursoId: 'curso1' })}
         >
           <View style={styles.continueInfo}>
-            <Text style={styles.continueTitle}>Progresso toatal dos cursos</Text>
-            <Text style={styles.continueProgress}>Progresso: 0%</Text>
-            <View style={styles.progressoContainer}>
-              <View style={[styles.progressoBar, { width: '0%' }]} />
-            </View>
+            <Text style={styles.continueTitle}>Progresso total dos cursos</Text>
+            <Text style={styles.continueProgress}>Progresso: {progressoTotal}%</Text>
+              <View style={styles.progressoContainer}>
+                <View style={[styles.progressoBar, { width: `${progressoTotal}%` }]} />
+              </View>
+
           </View>
           <Text style={styles.continueIcon}>›</Text>
         </TouchableOpacity>

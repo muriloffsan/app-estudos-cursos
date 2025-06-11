@@ -27,7 +27,7 @@ export default function App() {
             component={AtualizarCursoScreen}
             options={{ headerShown: true, title: 'Atualizar Curso' }}
           />
-        <Stack.Screen name="Modulo" component={ModuloScreen} />
+        <Stack.Screen name="Modulo" component={ModuloScreen} options={{ headerShown: true, title: 'Módulo' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
