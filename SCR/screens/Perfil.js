@@ -81,10 +81,6 @@ export default function Perfil({ navigation }) {
         <Text style={styles.titulo}>Perfil de {nomeUsuario}</Text>
       </View>
 
-      <View style={styles.fotoContainer}>
-        <Image source={{ uri: fotoUsuario }} style={styles.fotoPerfil} />
-      </View>
-
       <Text style={styles.nomeUsuario}>{nomeUsuario}</Text>
       <Text style={styles.emailUsuario}>{emailUsuario}</Text>
 

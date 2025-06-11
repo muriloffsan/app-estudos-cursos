@@ -48,15 +48,6 @@ useEffect(() => {
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Estudos e Cursos</Text>
-        <TouchableOpacity
-          style={styles.profileButton}
-          onPress={() => navigation.navigate('Perfil')}
-        >
-          <Image
-            source={{ uri: user?.photoURL || 'https://via.placeholder.com/150' }}
-            style={styles.profileImage}
-          />
-        </TouchableOpacity>
       </View>
 
       <View style={styles.welcomeContainer}>
