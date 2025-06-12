@@ -7,6 +7,8 @@ import { supabase } from '../../supabase/supabase';
 export default function HomeScreen({ navigation }) {
   const [authUser, setAuthUser] = useState(null);
   const [nomeUsuario, setNomeUsuario] = useState('Estudante');
+  const [cursoIncompleto, setCursoIncompleto] = useState(null);
+
 
   const [progressoTotal, setProgressoTotal] = useState(0);
 
@@ -32,6 +34,19 @@ useEffect(() => {
     setNomeUsuario(data.name || 'Estudante');
 
     const progresso = data.progresso || {};
+    const cursos = Object.entries(progresso);
+      let cursoParaContinuar = null;
+
+      for (const [cursoId, licoes] of cursos) {
+      const todasConcluidas = Object.values(licoes).every((v) => v === true);
+      if (!todasConcluidas) {
+    cursoParaContinuar = cursoId;
+    break; // pega o primeiro incompleto
+  }
+}
+
+setCursoIncompleto(cursoParaContinuar);
+
     const totalLicoes = Object.values(progresso).flatMap((curso) => Object.values(curso));
     const concluidas = totalLicoes.filter((val) => val === true).length;
     const porcentagem = totalLicoes.length === 0 ? 0 : Math.round((concluidas / totalLicoes.length) * 100);
@@ -139,7 +154,14 @@ useEffect(() => {
         <Text style={styles.sectionTitle}>Continue de Onde Parou</Text>
         <TouchableOpacity
           style={styles.continueCard}
-          onPress={() => navigation.navigate('AtualizarCurso', { cursoId: 'curso1' })}
+          onPress={() => {
+            if (cursoIncompleto) {
+              navigation.navigate('AtualizarCurso', { cursoId: cursoIncompleto });
+            } else {
+              alert('Parabéns! Você concluiu todos os cursos!');
+            }
+          }}
+
         >
           <View style={styles.continueInfo}>
             <Text style={styles.continueTitle}>Progresso total dos cursos</Text>
