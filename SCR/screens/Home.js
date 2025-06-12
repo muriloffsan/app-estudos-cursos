@@ -5,42 +5,43 @@ import { supabase } from '../../supabase/supabase';
 
 
 export default function HomeScreen({ navigation }) {
-  const [user, setUser] = useState(null);
+  const [authUser, setAuthUser] = useState(null);
+  const [nomeUsuario, setNomeUsuario] = useState('Estudante');
+
   const [progressoTotal, setProgressoTotal] = useState(0);
 
 useEffect(() => {
-  const fetchProgresso = async () => {
+  const fetchUserAndProgress = async () => {
     const { data: sessionData, error: sessionError } = await supabase.auth.getUser();
     const user = sessionData?.user;
     if (!user || sessionError) return;
 
-    setUser(user); // já fazia isso
+    setAuthUser(user); // salva authUser
 
     const { data, error } = await supabase
       .from('users')
-      .select('progresso')
+      .select('name, progresso')
       .eq('uid', user.id)
       .single();
 
     if (error || !data) {
-      console.error('Erro ao buscar progresso:', error);
+      console.error('Erro ao buscar progresso ou nome:', error);
       return;
     }
 
-    const progresso = data.progresso;
-    const totalLicoes = Object.values(progresso)
-      .map((curso) => Object.values(curso))
-      .flat();
+    setNomeUsuario(data.name || 'Estudante');
 
+    const progresso = data.progresso || {};
+    const totalLicoes = Object.values(progresso).flatMap((curso) => Object.values(curso));
     const concluidas = totalLicoes.filter((val) => val === true).length;
     const porcentagem = totalLicoes.length === 0 ? 0 : Math.round((concluidas / totalLicoes.length) * 100);
-
 
     setProgressoTotal(porcentagem);
   };
 
-  fetchProgresso();
+  fetchUserAndProgress();
 }, []);
+
 
 
 
@@ -55,9 +56,8 @@ useEffect(() => {
           />
         </View>
       </View>
-
       <View style={styles.welcomeContainer}>
-        <Text style={styles.welcomeText}>Olá, {user?.displayName || 'Estudante'}!</Text>
+        <Text style={styles.welcomeText}>Olá, {nomeUsuario}! Seja Bem-Vindo</Text>
         <Text style={styles.welcomeSubtext}>Continue sua jornada de aprendizado</Text>
       </View>
 
@@ -69,7 +69,7 @@ useEffect(() => {
           <View style={[styles.menuIcon, { backgroundColor: '#4a6bff' }]}>
             <Text style={styles.menuIconText}>📚</Text>
           </View>
-          <Text style={styles.menuTitle}>Cursos</Text>
+          <Text style={styles.menuTitle}>Sobre os Cursos</Text>
           <Text style={styles.menuDescription}>Explore o que os cursos lhe proporcionam</Text>
         </TouchableOpacity>
 

@@ -13,7 +13,7 @@ import {
   ScrollView,
   Alert
 } from 'react-native';
-
+import SplashScreen from './SplashScreen';
 import { signUpAndCreateProfile, loginWithEmail } from '../../supabase/auth'; 
 export default function LoginScreen({ navigation }) {
   const [name, setName] = useState('');
@@ -21,6 +21,12 @@ export default function LoginScreen({ navigation }) {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
+
+  const [showSplash, setShowSplash] = useState(true);
+  
+  if (showSplash) {
+    return <SplashScreen onFinish={() => setShowSplash(false)} />;
+  }
 
   const handleAuth = async () => {
     if (!email || !password || (!isLogin && !name)) {
@@ -63,6 +69,7 @@ export default function LoginScreen({ navigation }) {
     setEmail('');
     setPassword('');
   };
+  
 
   return (
     <KeyboardAvoidingView
