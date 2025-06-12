@@ -84,7 +84,7 @@ export default function AtualizarCurso({ route, navigation }) {
           onPress={() => toggleLicao(key)}
         >
           <Text style={styles.itemText}>
-            {key} - {licoes[key] ? '✅ Concluído' : '❌ Incompleto'}
+            {key} - {licoes[key] ? ' Concluído' : ' Incompleto'}
           </Text>
         </TouchableOpacity>
       ))}

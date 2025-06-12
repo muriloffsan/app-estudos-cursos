@@ -47,7 +47,13 @@ useEffect(() => {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Estudos e Cursos</Text>
+        <View style={styles.headerLeft}>
+          <Text style={styles.headerTitle}>Estudos e Cursos</Text>
+          <Image
+            source={require('../assets/logo_estudo.png')} 
+            style={styles.logoImage}
+          />
+        </View>
       </View>
 
       <View style={styles.welcomeContainer}>
@@ -64,7 +70,7 @@ useEffect(() => {
             <Text style={styles.menuIconText}>📚</Text>
           </View>
           <Text style={styles.menuTitle}>Cursos</Text>
-          <Text style={styles.menuDescription}>Explore o que os cursos lhe proporcinam</Text>
+          <Text style={styles.menuDescription}>Explore o que os cursos lhe proporcionam</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -141,7 +147,6 @@ useEffect(() => {
               <View style={styles.progressoContainer}>
                 <View style={[styles.progressoBar, { width: `${progressoTotal}%` }]} />
               </View>
-
           </View>
           <Text style={styles.continueIcon}>›</Text>
         </TouchableOpacity>
