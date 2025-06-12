@@ -45,7 +45,6 @@ export default function AtualizarCurso({ route, navigation }) {
     setIsSaving(true);
 
     try {
-      // Busca progresso atual
       const { data: userData, error: fetchError } = await supabase
         .from('users')
         .select('progresso')
@@ -97,29 +96,56 @@ export default function AtualizarCurso({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 20, backgroundColor: '#fff' },
-  title: { fontSize: 20, fontWeight: 'bold', marginBottom: 20 },
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#f8f9fa', 
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '600',
+    marginBottom: 20,
+    color: '#343a40', 
+    textAlign: 'center',
+  },
   item: {
-    padding: 16,
-    backgroundColor: '#f0f0f0',
-    marginBottom: 10,
-    borderRadius: 10,
+    padding: 18,
+    backgroundColor: '#ffffff',
+    marginBottom: 12,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    borderLeftWidth: 5,
+    borderLeftColor: '#dee2e6',
   },
   itemConcluido: {
-    backgroundColor: '#c6f6d5',
+    backgroundColor: '#e6fffa',
+    borderLeftColor: '#38b2ac',
   },
   itemText: {
     fontSize: 16,
+    color: '#495057',
+    fontWeight: '500',
   },
   botaoSalvar: {
-    marginTop: 20,
+    marginTop: 30,
     backgroundColor: '#4a6bff',
-    padding: 15,
-    borderRadius: 10,
+    paddingVertical: 16,
+    borderRadius: 12,
     alignItems: 'center',
+    shadowColor: '#4a6bff',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
   },
   botaoTexto: {
-    color: '#fff',
+    color: '#ffffff',
     fontWeight: 'bold',
+    fontSize: 16,
+    letterSpacing: 1,
   },
 });

@@ -64,7 +64,7 @@ useEffect(() => {
             <Text style={styles.menuIconText}>📚</Text>
           </View>
           <Text style={styles.menuTitle}>Cursos</Text>
-          <Text style={styles.menuDescription}>Exploreo que os cursos lhe proporcinar</Text>
+          <Text style={styles.menuDescription}>Explore o que os cursos lhe proporcinam</Text>
         </TouchableOpacity>
 
         <TouchableOpacity

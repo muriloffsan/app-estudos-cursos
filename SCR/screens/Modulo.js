@@ -47,7 +47,7 @@ export default function CursosScreen() {
       </View>
 
       <Text style={styles.finalText}>
-        📚 Escolha o seu ponto de partida. O futuro começa com um clique.  
+         Escolha o seu ponto de partida. O futuro começa com um clique.  
         E ele está logo ali, no próximo curso.
       </Text>
     </ScrollView>
