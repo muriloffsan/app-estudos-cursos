@@ -65,10 +65,6 @@ setCursoIncompleto(cursoParaContinuar);
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <Text style={styles.headerTitle}>Estudos e Cursos</Text>
-          <Image
-            source={require('../assets/logo_estudo.png')} 
-            style={styles.logoImage}
-          />
         </View>
       </View>
       <View style={styles.welcomeContainer}>
