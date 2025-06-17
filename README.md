@@ -1,6 +1,5 @@
 <p align="center">
   <img src="https://img.shields.io/badge/React%20Native-app--estudos--cursos-61DBFB?style=for-the-badge&logo=react" alt="React Native" />
-  <img src="https://img.shields.io/badge/Status-Em%20Desenvolvimento-yellow.svg" alt="Status" />
 </p>
 
 # 📚 app‑estudos‑cursos
@@ -49,26 +48,28 @@ Aplicativo móvel desenvolvido com React Native, voltado à gestão de estudos e
 
 2. Entre no diretório do projeto e instale as dependências:
 
-  ```bash
-  cd app-estudos-cursos
-  npm install
-  # ou
-  yarn install
-  ```
+    ```bash
+    cd app-estudos-cursos
+    npm install
+    # ou
+    yarn install
+    ```
 
 3. Execute o app:
 
-  Com Expo:
-    ```bash
-    expo start
-    ```
-  Com React Native CLI:
-    ```bash
-    npx react-native run-android
-    npx react-native run-ios
-    ```
+    Com Expo:
+      ```bash
+      expo start
+      ```
+    Com React Native CLI:
+      ```bash
+      npx react-native run-android
+      npx react-native run-ios
+      ```
 
-🚀 Como usar
+---
+
+## 🚀 Como usar
 Abra o app no celular ou emulador.
 
 Na tela inicial, crie um novo curso preenchendo os campos: título, descrição, data de início/final.
@@ -81,7 +82,9 @@ Use a seção “Meus Cursos” para navegar entre os estudos em andamento.
 
 📌 Dica: Inclua comandos no README para limpar banco de dados, rodar testes e gerar builds.
 
-📁 Estrutura de Pastas
+---
+
+## 📁 Estrutura de Pastas
 ```bash
 app-estudos-cursos/
 ├── src/
