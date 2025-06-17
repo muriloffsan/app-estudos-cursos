@@ -10,7 +10,7 @@ Aplicativo móvel desenvolvido com React Native, voltado à gestão de estudos e
 
 ## 🔍 Índice
 
-- [Funcionalidades](#funcionalidades)  
+- [💼 Funcionalidades](#funcionalidades)  
 - [🛠️ Tecnologias](#tecnologias)  
 - [🎯 Instalação](#instalação)  
 - [🚀 Como usar](#🚀-como-usar)  
@@ -23,7 +23,7 @@ Aplicativo móvel desenvolvido com React Native, voltado à gestão de estudos e
 - Criar, editar e excluir cursos e módulos  
 - Acompanhar progresso de estudo  
 - Layout responsivo para smartphones e tablets (Android e iOS)  
-- Integração com banco de dados (ex.: SQLite / Supabase / Realm)  
+- Integração com banco de dados (ex.: Supabase)  
 - Notificações ou lembretes configuráveis (se aplicável)
 
 ---
@@ -32,10 +32,8 @@ Aplicativo móvel desenvolvido com React Native, voltado à gestão de estudos e
 
 - **React Native** – Construção da UI  
 - **Expo** (opcional) – Para simplificar o desenvolvimento e testes  
-- **Redux / Context API** – Gerenciamento de estado  
 - **React Navigation** – Navegação entre telas  
-- **Banco de dados local ou remoto** – Para persistência de dados  
-- **Styled Components / Tailwind RN** – Estilização de componentes
+- **Banco de dados Supabase** – Para persistência de dados  
 
 ---
 
