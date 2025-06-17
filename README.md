@@ -47,30 +47,27 @@ Aplicativo móvel desenvolvido com React Native, voltado à gestão de estudos e
    ```bash
    git clone https://github.com/muriloffsan/app-estudos-cursos.git
 
-   Entre no diretório do projeto e instale as dependências:
+2. Entre no diretório do projeto e instale as dependências:
 
-bash
-Copiar
-Editar
-cd app-estudos-cursos
-npm install
-# ou
-yarn install
-Execute o app:
+  ```bash
+  cd app-estudos-cursos
+  npm install
+  # ou
+  yarn install
+  ```
 
-Com Expo:
+3. Execute o app:
 
-bash
-Copiar
-Editar
-expo start
-Com React Native CLI:
+  Com Expo:
+    ```bash
+    expo start
+    ```
+  Com React Native CLI:
+    ```bash
+    npx react-native run-android
+    npx react-native run-ios
+    ```
 
-bash
-Copiar
-Editar
-npx react-native run-android
-npx react-native run-ios
 🚀 Como usar
 Abra o app no celular ou emulador.
 
@@ -85,9 +82,7 @@ Use a seção “Meus Cursos” para navegar entre os estudos em andamento.
 📌 Dica: Inclua comandos no README para limpar banco de dados, rodar testes e gerar builds.
 
 📁 Estrutura de Pastas
-bash
-Copiar
-Editar
+```bash
 app-estudos-cursos/
 ├── src/
 │   ├── components/       # Componentes reaproveitáveis (buttons, cards, inputs)
@@ -99,3 +94,4 @@ app-estudos-cursos/
 ├── App.js                # Ponto de entrada do app
 ├── package.json
 └── README.md
+```
