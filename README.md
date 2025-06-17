@@ -16,8 +16,6 @@ Aplicativo móvel desenvolvido com React Native, voltado à gestão de estudos e
 - [🎯 Instalação](#instalação)  
 - [🚀 Como usar](#🚀-como-usar)  
 - [📁 Estrutura de Pastas](#📁-estrutura-de-pastas)  
-- [🤝 Contribuições](#🤝-contribuições)  
-- [📄 Licença](#📄-licença)
 
 ---
 
@@ -48,3 +46,56 @@ Aplicativo móvel desenvolvido com React Native, voltado à gestão de estudos e
 
    ```bash
    git clone https://github.com/muriloffsan/app-estudos-cursos.git
+
+   Entre no diretório do projeto e instale as dependências:
+
+bash
+Copiar
+Editar
+cd app-estudos-cursos
+npm install
+# ou
+yarn install
+Execute o app:
+
+Com Expo:
+
+bash
+Copiar
+Editar
+expo start
+Com React Native CLI:
+
+bash
+Copiar
+Editar
+npx react-native run-android
+npx react-native run-ios
+🚀 Como usar
+Abra o app no celular ou emulador.
+
+Na tela inicial, crie um novo curso preenchendo os campos: título, descrição, data de início/final.
+
+Dentro do curso, adicione módulos ou tarefas com data-alvo de conclusão.
+
+Marque tarefas como concluídas para acompanhar seu progresso.
+
+Use a seção “Meus Cursos” para navegar entre os estudos em andamento.
+
+📌 Dica: Inclua comandos no README para limpar banco de dados, rodar testes e gerar builds.
+
+📁 Estrutura de Pastas
+bash
+Copiar
+Editar
+app-estudos-cursos/
+├── src/
+│   ├── components/       # Componentes reaproveitáveis (buttons, cards, inputs)
+│   ├── screens/          # Telas principais (Home, Curso, Módulo)
+│   ├── navigation/       # Configuração de rotas
+│   ├── store/            # Redux, Context API ou MobX
+│   ├── services/         # Conexão com APIs ou banco local
+│   ├── assets/           # Ícones, imagens, fontes
+├── App.js                # Ponto de entrada do app
+├── package.json
+└── README.md
