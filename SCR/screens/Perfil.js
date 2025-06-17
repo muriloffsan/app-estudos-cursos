@@ -98,6 +98,9 @@ export default function Perfil({ navigation }) {
           <Text style={styles.resumoNumero}>{cursosFinalizados}</Text>
         </View>
       </View>
+      <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+        <Text style={styles.logoutText}>Sair</Text>
+      </TouchableOpacity>
 
       <Text style={styles.subtitulo}>Medalhas de Cursos</Text>
       {Object.keys(medalhas).map((curso) => (
@@ -119,9 +122,7 @@ export default function Perfil({ navigation }) {
         </View>
       ))}
 
-      <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-        <Text style={styles.logoutText}>Sair</Text>
-      </TouchableOpacity>
+      
     </ScrollView>
   );
 }
